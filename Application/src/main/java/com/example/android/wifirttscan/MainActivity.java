@@ -164,9 +164,10 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             if (scanResults != null) {
 
                 if (mLocationPermissionApproved) {
+                    //get list of 80211mc support ap data
                     mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(scanResults);
 
-                    mAdapter.swapData(mAccessPointsSupporting80211mc);
+                    mAdapter.swapData(scanResults);
 
                     logToUi(
                             scanResults.size()

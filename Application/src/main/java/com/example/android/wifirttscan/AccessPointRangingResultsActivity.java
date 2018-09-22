@@ -135,20 +135,29 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
         mMAC = mScanResult.BSSID;
 
+        Log.d(TAG, "enter onCreat accesspointrangingresultactivity");
+
         mSsidTextView.setText(mScanResult.SSID);
         mBssidTextView.setText(mScanResult.BSSID);
 
+        Log.d(TAG, "asdf1");
+
         mWifiRttManager = (WifiRttManager) getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
+
+        Log.d(TAG, "asdf2");
         mRttRangingResultCallback = new RttRangingResultCallback();
+
+        Log.d(TAG, "asdf3");
 
         // Used to store range (distance) and rangeSd (standard deviation of the measured distance)
         // history to calculate averages.
         mStatisticRangeHistory = new ArrayList<>();
         mStatisticRangeSDHistory = new ArrayList<>();
 
-        resetData();
-
+        //resetData();
+        Log.d(TAG, "asdf4");
         startRangingRequest();
+        Log.d(TAG, "asdf5");
     }
 
     private void resetData() {
@@ -172,18 +181,20 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         // Permission for fine location should already be granted via MainActivity (you can't get
         // to this class unless you already have permission. If they get to this class, then disable
         // fine location permission, we kick them back to main activity.
+        Log.d(TAG, "Enter startRangingRequest");
         if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             finish();
         }
-
+        Log.d(TAG, "qwer1");
         mNumberOfRangeRequests++;
 
         RangingRequest rangingRequest =
                 new RangingRequest.Builder().addAccessPoint(mScanResult).build();
-
+        Log.d(TAG, "qwer2");
         mWifiRttManager.startRanging(
                 rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+        Log.d(TAG, "qwer3");
     }
 
     // Calculates average distance based on stored history.

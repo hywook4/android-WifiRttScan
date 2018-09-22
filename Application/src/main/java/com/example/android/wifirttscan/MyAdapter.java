@@ -18,6 +18,8 @@ package com.example.android.wifirttscan;
 import android.net.wifi.ScanResult;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,8 @@ import java.util.List;
  * the {@link RecyclerView} to label the data.
  */
 public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
+
+    private static final String TAG = "MyAdapter";
     private static final int HEADER_POSITION = 0;
 
     private static final int TYPE_HEADER = 0;
@@ -52,13 +56,16 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView mSsidTextView;
-        public TextView mBssidTextView;
+        public TextView rssiTextView;
+        public TextView rttTextView;
+
 
         public ViewHolderItem(View view) {
             super(view);
             view.setOnClickListener(this);
             mSsidTextView = view.findViewById(R.id.ssid_text_view);
-            mBssidTextView = view.findViewById(R.id.bssid_text_view);
+            rssiTextView = view.findViewById(R.id.rssi_text_view);
+            rttTextView = view.findViewById(R.id.rtt_text_view);
         }
 
         @Override
@@ -105,6 +112,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
 
+        Log.d(TAG, "Enter the onBindViewHolder");
         if (viewHolder instanceof ViewHolderHeader) {
             // No updates need to be made to header view (defaults remain same).
 
@@ -113,11 +121,23 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             ScanResult currentScanResult = getItem(position);
 
             viewHolderItem.mSsidTextView.setText(currentScanResult.SSID);
-            viewHolderItem.mBssidTextView.setText(currentScanResult.BSSID);
+            viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
+            if(currentScanResult.is80211mcResponder()){
+                viewHolderItem.rttTextView.setText("O");
+            }
+            else{
+                viewHolderItem.rttTextView.setText("X");
+            }
+
+
 
         } else {
             throw new RuntimeException(viewHolder + " isn't a valid view holder.");
         }
+
+
+
+
     }
 
     /*

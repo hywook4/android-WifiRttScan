@@ -29,8 +29,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:textAlignment="center"
-        android:textSize="@dimen/recycler_row_header_text_size"
-        android:text="@string/recycler_row_header_label_ssid"
+        android:textSize="20sp"
+        android:text="SSID"
         android:id="@+id/ssid_text_view"/>
 
     <TextView
@@ -39,7 +39,17 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:textAlignment="center"
-        android:text="@string/recycler_row_header_label_bssid"
-        android:textSize="@dimen/recycler_row_header_text_size"
-        android:id="@+id/bssid_text_view"/>
+        android:text="RSSI"
+        android:textSize="20sp"
+        android:id="@+id/rssi_text_view"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:textAlignment="center"
+        android:text="RTT"
+        android:textSize="20sp"
+        android:id="@+id/rtt_text_view"/>
 </LinearLayout>
