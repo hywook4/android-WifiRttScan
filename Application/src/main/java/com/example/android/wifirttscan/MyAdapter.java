@@ -15,15 +15,23 @@
  */
 package com.example.android.wifirttscan;
 
+import android.content.Context;
 import android.net.wifi.ScanResult;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import android.net.wifi.rtt.RangingRequest;
+import android.net.wifi.rtt.RangingResult;
+import android.net.wifi.rtt.RangingResultCallback;
+import android.net.wifi.rtt.WifiRttManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -43,6 +51,17 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private List<ScanResult> mWifiAccessPointsWithRtt;
 
+    private WifiRttManager mWifiRttManager;
+    private RttRangingResultCallback mRttRangingResultCallback;
+
+    public TextView mSsidTextView;
+    public TextView rssiTextView;
+    public TextView rttTextView;
+    public Context mContext;
+
+
+
+
     public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener) {
         mWifiAccessPointsWithRtt = list;
         sScanResultClickListener = scanResultClickListener;
@@ -55,17 +74,19 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public TextView mSsidTextView;
-        public TextView rssiTextView;
-        public TextView rttTextView;
+
 
 
         public ViewHolderItem(View view) {
             super(view);
             view.setOnClickListener(this);
+            Log.d(TAG, "Enter ViewHolderItem");
             mSsidTextView = view.findViewById(R.id.ssid_text_view);
             rssiTextView = view.findViewById(R.id.rssi_text_view);
             rttTextView = view.findViewById(R.id.rtt_text_view);
+
+
+
         }
 
         @Override
@@ -89,6 +110,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
+        Log.d(TAG, "conCreatViewHolder()");
         ViewHolder viewHolder;
 
         if (viewType == TYPE_HEADER) {
@@ -120,13 +142,29 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             ViewHolderItem viewHolderItem = (ViewHolderItem) viewHolder;
             ScanResult currentScanResult = getItem(position);
 
-            viewHolderItem.mSsidTextView.setText(currentScanResult.SSID);
-            viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
+            mSsidTextView.setText(currentScanResult.SSID);
+
             if(currentScanResult.is80211mcResponder()){
-                viewHolderItem.rttTextView.setText("O");
+
+                rttTextView.setText("O");
+                rssiTextView.setText(currentScanResult.level + "");
+
+                //WifiRttManager mWifiRttManager = (WifiRttManager) mContext.getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
+                //MyAdapter.RttRangingResultCallback mRttRangingResultCallback = new MyAdapter.RttRangingResultCallback();
+
+                //RangingRequest rangingRequest = new RangingRequest.Builder().addAccessPoint(currentScanResult).build();
+
+
+                //mWifiRttManager.startRanging(rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+
+
+
             }
+
+
             else{
-                viewHolderItem.rttTextView.setText("X");
+                rssiTextView.setText(currentScanResult.level + "");
+                rttTextView.setText("X");
             }
 
 
@@ -168,4 +206,46 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     public interface ScanResultClickListener {
         void onScanResultItemClick(ScanResult scanResult);
     }
+
+
+    public class RttRangingResultCallback extends RangingResultCallback {
+
+        @Override
+        public void onRangingFailure(int code) {
+            Log.d(TAG, "onRangingFailure() code: " + code);
+        }
+
+        @Override
+        public void onRangingResults(@NonNull List<RangingResult> list) {
+            Log.d(TAG, "onRangingResults(): " + list);
+
+            // Because we are only requesting RangingResult for one access point (not multiple
+            // access points), this will only ever be one. (Use loops when requesting RangingResults
+            // for multiple access points.)
+            if (list.size() == 1) {
+
+                RangingResult rangingResult = list.get(0);
+
+                if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
+
+                    rttTextView.setText(rangingResult.getDistanceMm() + "");
+
+                    rssiTextView.setText(rangingResult.getRssi() + "");
+
+
+                } else if (rangingResult.getStatus()
+                        == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
+                    Log.d(TAG, "RangingResult failed (AP doesn't support IEEE80211 MC.");
+
+                } else {
+                    Log.d(TAG, "RangingResult failed.");
+                }
+
+            }
+        }
+    }
+
+
+
+
 }

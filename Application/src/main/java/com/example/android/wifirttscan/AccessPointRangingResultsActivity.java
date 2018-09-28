@@ -56,23 +56,13 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private TextView mBssidTextView;
 
     private TextView mRangeTextView;
-    private TextView mRangeMeanTextView;
     private TextView mRangeSDTextView;
-    private TextView mRangeSDMeanTextView;
     private TextView mRssiTextView;
-    private TextView mSuccessesInBurstTextView;
-    private TextView mSuccessRatioTextView;
-    private TextView mNumberOfRequestsTextView;
 
-    private EditText mSampleSizeEditText;
-    private EditText mMillisecondsDelayBeforeNewRangingRequestEditText;
 
     // Non UI variables.
     private ScanResult mScanResult;
     private String mMAC;
-
-    private int mNumberOfRangeRequests;
-    private int mNumberOfSuccessfulRangeRequests;
 
     private int mMillisecondsDelayBeforeNewRangingRequest;
 
@@ -83,15 +73,6 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     // so the average in (1) is the average of these averages.
     private int mSampleSize;
 
-    // Used to loop over a list of distances to calculate averages (ensures data structure never
-    // get larger than sample size).
-    private int mStatisticRangeHistoryEndIndex;
-    private ArrayList<Integer> mStatisticRangeHistory;
-
-    // Used to loop over a list of the standard deviation of the measured distance to calculate
-    // averages  (ensures data structure never get larger than sample size).
-    private int mStatisticRangeSDHistoryEndIndex;
-    private ArrayList<Integer> mStatisticRangeSDHistory;
 
     private WifiRttManager mWifiRttManager;
     private RttRangingResultCallback mRttRangingResultCallback;
@@ -109,21 +90,9 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mBssidTextView = findViewById(R.id.bssid);
 
         mRangeTextView = findViewById(R.id.range_value);
-        mRangeMeanTextView = findViewById(R.id.range_mean_value);
         mRangeSDTextView = findViewById(R.id.range_sd_value);
-        mRangeSDMeanTextView = findViewById(R.id.range_sd_mean_value);
         mRssiTextView = findViewById(R.id.rssi_value);
-        mSuccessesInBurstTextView = findViewById(R.id.successes_in_burst_value);
-        mSuccessRatioTextView = findViewById(R.id.success_ratio_value);
-        mNumberOfRequestsTextView = findViewById(R.id.number_of_requests_value);
 
-        mSampleSizeEditText = findViewById(R.id.stats_window_size_edit_value);
-        mSampleSizeEditText.setText(SAMPLE_SIZE_DEFAULT + "");
-
-        mMillisecondsDelayBeforeNewRangingRequestEditText =
-                findViewById(R.id.ranging_period_edit_value);
-        mMillisecondsDelayBeforeNewRangingRequestEditText.setText(
-                MILLISECONDS_DELAY_BEFORE_NEW_RANGING_REQUEST_DEFAULT + "");
 
         // Retrieve ScanResult from Intent.
         Intent intent = getIntent();
@@ -135,47 +104,22 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
         mMAC = mScanResult.BSSID;
 
-        Log.d(TAG, "enter onCreat accesspointrangingresultactivity");
-
         mSsidTextView.setText(mScanResult.SSID);
         mBssidTextView.setText(mScanResult.BSSID);
 
-        Log.d(TAG, "asdf1");
 
         mWifiRttManager = (WifiRttManager) getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
 
-        Log.d(TAG, "asdf2");
+
         mRttRangingResultCallback = new RttRangingResultCallback();
 
-        Log.d(TAG, "asdf3");
 
-        // Used to store range (distance) and rangeSd (standard deviation of the measured distance)
-        // history to calculate averages.
-        mStatisticRangeHistory = new ArrayList<>();
-        mStatisticRangeSDHistory = new ArrayList<>();
 
-        //resetData();
-        Log.d(TAG, "asdf4");
+
         startRangingRequest();
-        Log.d(TAG, "asdf5");
+
     }
 
-    private void resetData() {
-        mSampleSize = Integer.parseInt(mSampleSizeEditText.getText().toString());
-
-        mMillisecondsDelayBeforeNewRangingRequest =
-                Integer.parseInt(
-                        mMillisecondsDelayBeforeNewRangingRequestEditText.getText().toString());
-
-        mNumberOfSuccessfulRangeRequests = 0;
-        mNumberOfRangeRequests = 0;
-
-        mStatisticRangeHistoryEndIndex = 0;
-        mStatisticRangeHistory.clear();
-
-        mStatisticRangeSDHistoryEndIndex = 0;
-        mStatisticRangeSDHistory.clear();
-    }
 
     private void startRangingRequest() {
         // Permission for fine location should already be granted via MainActivity (you can't get
@@ -186,78 +130,29 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             finish();
         }
-        Log.d(TAG, "qwer1");
-        mNumberOfRangeRequests++;
 
-        RangingRequest rangingRequest =
-                new RangingRequest.Builder().addAccessPoint(mScanResult).build();
-        Log.d(TAG, "qwer2");
-        mWifiRttManager.startRanging(
-                rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
-        Log.d(TAG, "qwer3");
-    }
+        //if AP supports 80211mc
 
-    // Calculates average distance based on stored history.
-    private float getDistanceMean() {
-        float distanceSum = 0;
+        if(mScanResult.is80211mcResponder()){
+            RangingRequest rangingRequest =
+                    new RangingRequest.Builder().addAccessPoint(mScanResult).build();
 
-        for (int distance : mStatisticRangeHistory) {
-            distanceSum += distance;
+
+            mWifiRttManager.startRanging(
+                    rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
         }
 
-        return distanceSum / mStatisticRangeHistory.size();
-    }
+        else{
 
-    // Adds distance to history. If larger than sample size value, loops back over and replaces the
-    // oldest distance record in the list.
-    private void addDistanceToHistory(int distance) {
+            mRangeTextView.setText("X");
 
-        if (mStatisticRangeHistory.size() >= mSampleSize) {
+            mRangeSDTextView.setText("X");
 
-            if (mStatisticRangeHistoryEndIndex >= mSampleSize) {
-                mStatisticRangeHistoryEndIndex = 0;
-            }
+            mRssiTextView.setText(mScanResult.level + "");
 
-            mStatisticRangeHistory.set(mStatisticRangeHistoryEndIndex, distance);
-            mStatisticRangeHistoryEndIndex++;
-
-        } else {
-            mStatisticRangeHistory.add(distance);
         }
     }
 
-    // Calculates standard deviation of the measured distance based on stored history.
-    private float getStandardDeviationOfDistanceMean() {
-        float distanceSdSum = 0;
-
-        for (int distanceSd : mStatisticRangeSDHistory) {
-            distanceSdSum += distanceSd;
-        }
-
-        return distanceSdSum / mStatisticRangeHistory.size();
-    }
-
-    // Adds standard deviation of the measured distance to history. If larger than sample size
-    // value, loops back over and replaces the oldest distance record in the list.
-    private void addStandardDeviationOfDistanceToHistory(int distanceSd) {
-
-        if (mStatisticRangeSDHistory.size() >= mSampleSize) {
-
-            if (mStatisticRangeSDHistoryEndIndex >= mSampleSize) {
-                mStatisticRangeSDHistoryEndIndex = 0;
-            }
-
-            mStatisticRangeSDHistory.set(mStatisticRangeSDHistoryEndIndex, distanceSd);
-            mStatisticRangeSDHistoryEndIndex++;
-
-        } else {
-            mStatisticRangeSDHistory.add(distanceSd);
-        }
-    }
-
-    public void onResetButtonClick(View view) {
-        resetData();
-    }
 
     // Class that handles callbacks for all RangingRequests and issues new RangingRequests.
     private class RttRangingResultCallback extends RangingResultCallback {
@@ -290,56 +185,28 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
                 RangingResult rangingResult = list.get(0);
 
-                if (mMAC.equals(rangingResult.getMacAddress().toString())) {
 
-                    if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
+                if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
 
-                        mNumberOfSuccessfulRangeRequests++;
+                    mRangeTextView.setText((rangingResult.getDistanceMm() / 1000f) + "");
 
-                        mRangeTextView.setText((rangingResult.getDistanceMm() / 1000f) + "");
-                        addDistanceToHistory(rangingResult.getDistanceMm());
-                        mRangeMeanTextView.setText((getDistanceMean() / 1000f) + "");
+                    mRangeSDTextView.setText(
+                            (rangingResult.getDistanceStdDevMm() / 1000f) + "");
 
-                        mRangeSDTextView.setText(
-                                (rangingResult.getDistanceStdDevMm() / 1000f) + "");
-                        addStandardDeviationOfDistanceToHistory(
-                                rangingResult.getDistanceStdDevMm());
-                        mRangeSDMeanTextView.setText(
-                                (getStandardDeviationOfDistanceMean() / 1000f) + "");
+                    mRssiTextView.setText(rangingResult.getRssi() + "");
 
-                        mRssiTextView.setText(rangingResult.getRssi() + "");
-                        mSuccessesInBurstTextView.setText(
-                                rangingResult.getNumSuccessfulMeasurements()
-                                        + "/"
-                                        + rangingResult.getNumAttemptedMeasurements());
 
-                        float successRatio =
-                                ((float) mNumberOfSuccessfulRangeRequests
-                                                / (float) mNumberOfRangeRequests)
-                                        * 100;
-                        mSuccessRatioTextView.setText(successRatio + "%");
-
-                        mNumberOfRequestsTextView.setText(mNumberOfRangeRequests + "");
-
-                    } else if (rangingResult.getStatus()
-                            == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
-                        Log.d(TAG, "RangingResult failed (AP doesn't support IEEE80211 MC.");
-
-                    } else {
-                        Log.d(TAG, "RangingResult failed.");
-                    }
+                } else if (rangingResult.getStatus()
+                        == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
+                    Log.d(TAG, "RangingResult failed (AP doesn't support IEEE80211 MC.");
 
                 } else {
-                    Toast.makeText(
-                                    getApplicationContext(),
-                                    R.string
-                                            .mac_mismatch_message_activity_access_point_ranging_results,
-                                    Toast.LENGTH_LONG)
-                            .show();
+                    Log.d(TAG, "RangingResult failed.");
                 }
-            }
 
-            queueNextRangingRequest();
+
+            }
+            //queueNextRangingRequest();
         }
     }
 }

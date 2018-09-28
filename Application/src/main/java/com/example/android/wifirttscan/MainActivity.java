@@ -38,6 +38,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+
 import com.example.android.wifirttscan.MyAdapter.ScanResultClickListener;
 
 import java.util.ArrayList;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     private MyAdapter mAdapter;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiScanReceiver = new WifiScanReceiver();
+
+
+
+
     }
 
     @Override
