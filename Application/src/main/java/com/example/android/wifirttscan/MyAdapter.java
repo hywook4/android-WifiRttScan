@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.Application;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ import java.util.List;
  * the {@link RecyclerView} to label the data.
  */
 public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
+
 
     private static final String TAG = "MyAdapter";
     private static final int HEADER_POSITION = 0;
@@ -54,17 +56,17 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     private WifiRttManager mWifiRttManager;
     private RttRangingResultCallback mRttRangingResultCallback;
 
-    public TextView mSsidTextView;
-    public TextView rssiTextView;
-    public TextView rttTextView;
-    public Context mContext;
+    public int mRssi;
+    public int mRtt;
+
+    public Application mApplication;
+    public int num;
 
 
-
-
-    public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener) {
+    public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener, Application app) {
         mWifiAccessPointsWithRtt = list;
         sScanResultClickListener = scanResultClickListener;
+        mApplication = app;
     }
 
     public static class ViewHolderHeader extends RecyclerView.ViewHolder {
@@ -75,6 +77,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        public TextView mSsidTextView;
+        public TextView rssiTextView;
+        public TextView rttTextView;
 
 
         public ViewHolderItem(View view) {
@@ -85,7 +90,11 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             rssiTextView = view.findViewById(R.id.rssi_text_view);
             rttTextView = view.findViewById(R.id.rtt_text_view);
 
+            Log.d(TAG, "before wifirttmanager");
+            //mWifiRttManager = (WifiRttManager) view.getContext().getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
+            //mRttRangingResultCallback = new RttRangingResultCallback();
 
+            Log.d(TAG, "after wifirttmanager");
 
         }
 
@@ -109,8 +118,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-        Log.d(TAG, "conCreatViewHolder()");
+        Log.d(TAG, "conCreatViewHolder() : ");
         ViewHolder viewHolder;
 
         if (viewType == TYPE_HEADER) {
@@ -128,6 +136,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             throw new RuntimeException(viewType + " isn't a valid view type.");
         }
 
+
         return viewHolder;
     }
 
@@ -142,29 +151,28 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             ViewHolderItem viewHolderItem = (ViewHolderItem) viewHolder;
             ScanResult currentScanResult = getItem(position);
 
-            mSsidTextView.setText(currentScanResult.SSID);
+            viewHolderItem.mSsidTextView.setText(currentScanResult.SSID);
 
             if(currentScanResult.is80211mcResponder()){
 
-                rttTextView.setText("O");
-                rssiTextView.setText(currentScanResult.level + "");
+                viewHolderItem.rttTextView.setText("O");
+                viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
 
-                //WifiRttManager mWifiRttManager = (WifiRttManager) mContext.getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
-                //MyAdapter.RttRangingResultCallback mRttRangingResultCallback = new MyAdapter.RttRangingResultCallback();
 
                 //RangingRequest rangingRequest = new RangingRequest.Builder().addAccessPoint(currentScanResult).build();
 
+                //mWifiRttManager.startRanging(rangingRequest, mApplication.getMainExecutor(), mRttRangingResultCallback);
 
-                //mWifiRttManager.startRanging(rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
-
-
+                //viewHolderItem.rttTextView.setText(mRtt + "");
+                //viewHolderItem.rssiTextView.setText(mRssi + "");
 
             }
 
 
             else{
-                rssiTextView.setText(currentScanResult.level + "");
-                rttTextView.setText("X");
+                mRssi = currentScanResult.level;
+                viewHolderItem.rssiTextView.setText(mRssi + "");
+                viewHolderItem.rttTextView.setText("X");
             }
 
 
@@ -228,9 +236,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
                 if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
 
-                    rttTextView.setText(rangingResult.getDistanceMm() + "");
+                    //rttTextView.setText(rangingResult.getDistanceMm() + "");
 
-                    rssiTextView.setText(rangingResult.getRssi() + "");
+                    //rssiTextView.setText(rangingResult.getRssi() + "");
 
 
                 } else if (rangingResult.getStatus()

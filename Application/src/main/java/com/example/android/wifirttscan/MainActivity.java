@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     private boolean mLocationPermissionApproved = false;
 
     List<ScanResult> mAccessPointsSupporting80211mc;
+    List<ScanResult> mAccessPoints;
 
     private WifiManager mWifiManager;
     private WifiScanReceiver mWifiScanReceiver;
@@ -66,9 +67,11 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         mOutputTextView = findViewById(R.id.access_point_summary_text_view);
@@ -83,14 +86,13 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         mRecyclerView.setLayoutManager(layoutManager);
 
         mAccessPointsSupporting80211mc = new ArrayList<>();
+        mAccessPoints = new ArrayList<>();
 
-        mAdapter = new MyAdapter(mAccessPointsSupporting80211mc, this);
+        mAdapter = new MyAdapter(mAccessPoints, this, getApplication());
         mRecyclerView.setAdapter(mAdapter);
 
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiScanReceiver = new WifiScanReceiver();
-
-
 
 
     }
@@ -173,11 +175,12 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 if (mLocationPermissionApproved) {
                     //get list of 80211mc support ap data
                     mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(scanResults);
+                    mAccessPoints = scanResults;
 
-                    mAdapter.swapData(scanResults);
+                    mAdapter.swapData(mAccessPoints);
 
                     logToUi(
-                            scanResults.size()
+                            mAccessPoints.size()
                                     + " APs discovered, "
                                     + mAccessPointsSupporting80211mc.size()
                                     + " RTT capable.");
