@@ -18,14 +18,10 @@ repositories {
 }
 
 dependencies {
-
-
     implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha1'
     implementation 'com.google.android.material:material:1.0.0-beta01'
-
-
-
+    implementation files('libs/opencsv-4.3.2.jar')
 }
 
 // The sample build uses multiple directories to
