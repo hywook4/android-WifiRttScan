@@ -38,6 +38,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Displays ranging information about a particular access point chosen by the user. Uses {@link
  * Handler} to trigger new requests based on
@@ -79,6 +80,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
     // Triggers additional RangingRequests with delay (mMillisecondsDelayBeforeNewRangingRequest).
     final Handler mRangeRequestDelayHandler = new Handler();
+
+    CsvManager mcsvmanager = new CsvManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +134,10 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
             finish();
         }
 
+        if(ActivityCompat.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            finish();
+        }
+
         //if AP supports 80211mc
 
         if(mScanResult.is80211mcResponder()){
@@ -149,6 +156,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
             mRangeSDTextView.setText("X");
 
             mRssiTextView.setText(mScanResult.level + "");
+
+            mcsvmanager.Write();
 
         }
     }
@@ -195,6 +204,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
                     mRssiTextView.setText(rangingResult.getRssi() + "");
 
+                    mcsvmanager.Write(rangingResult);
 
                 } else if (rangingResult.getStatus()
                         == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {

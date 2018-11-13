@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     private static final String TAG = "MainActivity";
 
     private boolean mLocationPermissionApproved = false;
+    private boolean mExternalStoragePermissionApproved = false;
+    private boolean mInternalStoragePermissionApproved = false;
 
     List<ScanResult> mAccessPointsSupporting80211mc;
     List<ScanResult> mAccessPoints;
@@ -106,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED;
 
+        mExternalStoragePermissionApproved = ActivityCompat.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
+        mInternalStoragePermissionApproved = ActivityCompat.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
         registerReceiver(
                 mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
@@ -134,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     }
 
     public void onClickFindDistancesToAccessPoints(View view) {
-        if (mLocationPermissionApproved) {
+        if (mLocationPermissionApproved && mExternalStoragePermissionApproved && mInternalStoragePermissionApproved) {
             logToUi(getString(R.string.retrieving_access_points));
             mWifiManager.startScan();
 
