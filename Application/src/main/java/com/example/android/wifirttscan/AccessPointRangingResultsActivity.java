@@ -35,6 +35,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,14 +68,19 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private ToggleButton scanToggle;
     private Boolean scanning;
 
+    private String startData;
     private String writeData;
-    private String data;
+
+    private Date date;
+    private SimpleDateFormat timeStamp;
 
     // Non UI variables.
     private ScanResult mScanResult;
     private String mMAC;
 
-    private int mMillisecondsDelayBeforeNewRangingRequest;
+    private int number=0;
+
+    private int mMillisecondsDelayBeforeNewRangingRequest = 3000;
 
     // Max sample size to calculate average for
     // 1. Distance to device (getDistanceMm) over time
@@ -88,8 +95,9 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
     // Triggers additional RangingRequests with delay (mMillisecondsDelayBeforeNewRangingRequest).
     final Handler mRangeRequestDelayHandler = new Handler();
+    final Handler mRequestDelayer = new Handler();
 
-    CsvManager mcsvmanager = new CsvManager();
+    CsvManager mCsvManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,49 +125,47 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
         mMAC = mScanResult.BSSID;
 
+        startData = mScanResult.SSID;
+        startData += ',' + mScanResult.BSSID;
+        startData += ',' + String.valueOf(mScanResult.centerFreq0);
+        startData += ',' + String.valueOf(mScanResult.centerFreq1);
+        startData += ',' + String.valueOf(mScanResult.channelWidth);
+        startData += ',' + String.valueOf(mScanResult.frequency);
+
+
         mSsidTextView.setText(mScanResult.SSID);
         mBssidTextView.setText(mScanResult.BSSID);
 
-
         mWifiRttManager = (WifiRttManager) getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
 
-
         mRttRangingResultCallback = new RttRangingResultCallback();
-
-
-        //startRangingRequest();
 
     }
 
     public void onToggleClicked(View view){
-        String fileName = mCsvFileName.getText().toString();
+        String fileName = mCsvFileName.getText().toString() + ".csv";
+        mCsvManager = new CsvManager(fileName);
         if(((ToggleButton)view).isChecked()){
             scanning = true;
-            if(scanning){
-                mRangeTextView.setText(fileName);
-                mRangeSDTextView.setText("scanning");
-            }
-            else{
-                mRangeTextView.setText("no name");
-                mRangeSDTextView.setText("X");
-            }
-
+            startRangingRequest();
         }
         else{
             scanning = false;
-            if(scanning){
-                mRangeTextView.setText(fileName);
-                mRangeSDTextView.setText("scanning");
-            }
-            else{
-                mRangeTextView.setText("no name");
-                mRangeSDTextView.setText("X");
-            }
         }
-
         return;
     }
 
+    private void delayRequest(){
+        mRequestDelayer.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if(scanning)
+                            startRangingRequest();
+                    }
+                },
+                1000);
+    }
 
     private void startRangingRequest() {
         // Permission for fine location should already be granted via MainActivity (you can't get
@@ -175,6 +181,9 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
             finish();
         }
 
+        //clear previous write data
+        writeData = startData;
+
         //if AP supports 80211mc
         if(mScanResult.is80211mcResponder()){
             RangingRequest rangingRequest =
@@ -185,12 +194,19 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         }
 
         else{
-            mRangeTextView.setText("X");
+            mRangeTextView.setText("" + number);
             mRangeSDTextView.setText("X");
             mRssiTextView.setText(mScanResult.level + "");
+            writeData += ',' + String.valueOf(number);
+            writeData += ',' + "X";
+            writeData += ',' + String.valueOf(mScanResult.level);
 
-            //mcsvmanager.Write();
+            number++;
 
+            mCsvManager.Write(writeData);
+
+            if(scanning)
+                delayRequest();
         }
     }
 
@@ -203,10 +219,11 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                     new Runnable() {
                         @Override
                         public void run() {
-                            startRangingRequest();
+                            if(scanning)
+                                startRangingRequest();
                         }
                     },
-                    mMillisecondsDelayBeforeNewRangingRequest);
+                    1000);
         }
 
         @Override
@@ -236,8 +253,19 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
                     mRssiTextView.setText(rangingResult.getRssi() + "");
 
-                    // FIXME: CsvManager is changed
-                    // mcsvmanager.Write(rangingResult);
+                    writeData += ',' + String.valueOf(rangingResult.getStatus());
+                    writeData += ',' + String.valueOf(rangingResult.getDistanceMm());
+                    writeData += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
+                    writeData += ',' + String.valueOf(rangingResult.getRssi());
+
+                    date = new Date(rangingResult.getRangingTimestampMillis());
+                    timeStamp = new SimpleDateFormat("dd/MM/yy");
+                    writeData += ',' + timeStamp.format(date);
+
+                    writeData += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
+                    writeData += ',' + String.valueOf(rangingResult.getNumSuccessfulMeasurements());
+
+                    mCsvManager.Write(writeData);
 
                 } else if (rangingResult.getStatus()
                         == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
@@ -247,9 +275,9 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                     Log.d(TAG, "RangingResult failed.");
                 }
 
-
             }
-            //queueNextRangingRequest();
+            if(scanning)
+                queueNextRangingRequest();
         }
     }
 }
