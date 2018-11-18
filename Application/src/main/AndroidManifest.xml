@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  Copyright 2018 The Android Open Source Project
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +25,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <!-- Permission for store csv file -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -36,7 +35,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/CustomAppTheme">
-
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -47,18 +45,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LocationPermissionRequestActivity"
             android:label="@string/title_activity_location_permission_request"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/CustomAppTheme">
-        </activity>
-
-        <activity android:name=".AccessPointRangingResultsActivity"
+            android:theme="@style/CustomAppTheme"></activity>
+        <activity
+            android:name=".AccessPointRangingResultsActivity"
             android:label="@string/title_activity_access_point_ranging_results"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/CustomAppTheme">
-        </activity>
+            android:theme="@style/CustomAppTheme"></activity>
+        <activity android:name=".DeveloperActivity"></activity>
     </application>
+
 </manifest>

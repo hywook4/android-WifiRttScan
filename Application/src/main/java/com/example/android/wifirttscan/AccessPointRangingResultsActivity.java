@@ -157,7 +157,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
             mRssiTextView.setText(mScanResult.level + "");
 
-            mcsvmanager.Write();
+            // FIXME: CsvManager is changed
+            // mcsvmanager.Write();
 
         }
     }
@@ -204,7 +205,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
                     mRssiTextView.setText(rangingResult.getRssi() + "");
 
-                    mcsvmanager.Write(rangingResult);
+                    // FIXME: CsvManager is changed
+                    // mcsvmanager.Write(rangingResult);
 
                 } else if (rangingResult.getStatus()
                         == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {

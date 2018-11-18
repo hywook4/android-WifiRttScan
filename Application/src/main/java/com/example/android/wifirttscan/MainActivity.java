@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiScanReceiver = new WifiScanReceiver();
 
-
     }
 
     @Override
@@ -149,6 +148,13 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             Intent startIntent = new Intent(this, LocationPermissionRequestActivity.class);
             startActivity(startIntent);
         }
+    }
+
+    public void onClickDeveloperConsole(View view) {
+        Log.d(TAG, "onClickDeveloperConsole");
+
+        Intent intent = new Intent(this, DeveloperActivity.class);
+        startActivity(intent);
     }
 
     private class WifiScanReceiver extends BroadcastReceiver {
