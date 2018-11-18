@@ -21,7 +21,12 @@ public class CsvManager {
         // Do nothing
     }
 
-    public CsvManager(String delimiter) {
+    public CsvManager(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public CsvManager(String fileName, String delimiter) {
+        this.fileName = fileName;
         this.delimiter = delimiter;
     }
 
