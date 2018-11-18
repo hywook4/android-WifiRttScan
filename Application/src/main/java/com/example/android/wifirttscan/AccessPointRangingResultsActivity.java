@@ -61,6 +61,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private TextView mRangeSDTextView;
     private TextView mRssiTextView;
 
+    private TextView mCsvFileName;
+
     private ToggleButton scanToggle;
     private Boolean scanning;
 
@@ -103,6 +105,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mRssiTextView = findViewById(R.id.rssi_value);
 
         scanToggle = findViewById(R.id.toggle_button);
+        mCsvFileName = findViewById(R.id.csv_file_name);
 
         // Retrieve ScanResult from Intent.
         Intent intent = getIntent();
@@ -124,19 +127,34 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mRttRangingResultCallback = new RttRangingResultCallback();
 
 
-        scanning = scanToggle.isChecked();
-
-
-        startRangingRequest();
+        //startRangingRequest();
 
     }
 
     public void onToggleClicked(View view){
+        String fileName = mCsvFileName.getText().toString();
         if(((ToggleButton)view).isChecked()){
             scanning = true;
+            if(scanning){
+                mRangeTextView.setText(fileName);
+                mRangeSDTextView.setText("scanning");
+            }
+            else{
+                mRangeTextView.setText("no name");
+                mRangeSDTextView.setText("X");
+            }
+
         }
         else{
             scanning = false;
+            if(scanning){
+                mRangeTextView.setText(fileName);
+                mRangeSDTextView.setText("scanning");
+            }
+            else{
+                mRangeTextView.setText("no name");
+                mRangeSDTextView.setText("X");
+            }
         }
 
         return;
@@ -158,45 +176,20 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         }
 
         //if AP supports 80211mc
-        writeData = mScanResult.SSID;
-        writeData += ',' + mScanResult.BSSID;
-        writeData += ',' + mScanResult.centerFreq0;
-        writeData += ',' + mScanResult.centerFreq1;
-        writeData += ',' + mScanResult.channelWidth;
-        writeData += ',' + mScanResult.frequency;
-
-
         if(mScanResult.is80211mcResponder()){
             RangingRequest rangingRequest =
                     new RangingRequest.Builder().addAccessPoint(mScanResult).build();
-
 
             mWifiRttManager.startRanging(
                     rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
         }
 
         else{
-
-            Log.d(TAG, "TEsting string " + writeData);
-
-            mRangeTextView.setText(writeData);
-
-            if(scanning){
-                mRangeSDTextView.setText("scanning");
-            }
-            else{
-                mRangeSDTextView.setText("X");
-            }
-
-
+            mRangeTextView.setText("X");
+            mRangeSDTextView.setText("X");
             mRssiTextView.setText(mScanResult.level + "");
 
-
-            writeData += ',' + mScanResult.level;
-
-
-
-            mcsvmanager.Write();
+            //mcsvmanager.Write();
 
         }
     }

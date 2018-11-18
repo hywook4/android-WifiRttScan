@@ -160,7 +160,7 @@
         android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
         android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
         android:gravity="center"
-        android:text="CSV filename: "
+        android:text="CSV filename:"
         android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
         app:layout_constraintTop_toTopOf="@+id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -177,7 +177,7 @@
         android:inputType="text"
         android:gravity="center"
         android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
-        app:layout_constraintTop_toBottomOf="@+id/stats_window_size_label"
+        app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="100" />
