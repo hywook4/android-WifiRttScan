@@ -6,4 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".DeveloperActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/test_csv_button_label"
+            android:onClick="onClickWriteCsv" />
+        <EditText
+            android:id="@+id/test_csv_edittext"
+            android:hint="@string/test_csv_placeholder"
+            android:autofillHints="@string/test_csv_placeholder"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

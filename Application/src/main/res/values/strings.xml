@@ -44,4 +44,8 @@
     <string name="number_of_requests_label_activity_access_point_ranging_results">Number of requests:</string>
     <string name="mac_mismatch_message_activity_access_point_ranging_results">Callback MAC address doesn\'t match original request MAC address.</string>
 
+    <!-- Strings for DeveloperActivity -->
+    <string name="test_csv_placeholder">Sentence to write: </string>
+    <string name="test_csv_button_label">Write</string>
+
 </resources>
