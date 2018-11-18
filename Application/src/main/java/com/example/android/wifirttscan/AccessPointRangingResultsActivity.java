@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,11 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private TextView mRangeSDTextView;
     private TextView mRssiTextView;
 
+    private ToggleButton scanToggle;
+    private Boolean scanning;
+
+    private String writeData;
+    private String data;
 
     // Non UI variables.
     private ScanResult mScanResult;
@@ -96,6 +102,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mRangeSDTextView = findViewById(R.id.range_sd_value);
         mRssiTextView = findViewById(R.id.rssi_value);
 
+        scanToggle = findViewById(R.id.toggle_button);
 
         // Retrieve ScanResult from Intent.
         Intent intent = getIntent();
@@ -117,10 +124,22 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mRttRangingResultCallback = new RttRangingResultCallback();
 
 
+        scanning = scanToggle.isChecked();
 
 
         startRangingRequest();
 
+    }
+
+    public void onToggleClicked(View view){
+        if(((ToggleButton)view).isChecked()){
+            scanning = true;
+        }
+        else{
+            scanning = false;
+        }
+
+        return;
     }
 
 
@@ -139,6 +158,13 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         }
 
         //if AP supports 80211mc
+        writeData = mScanResult.SSID;
+        writeData += ',' + mScanResult.BSSID;
+        writeData += ',' + mScanResult.centerFreq0;
+        writeData += ',' + mScanResult.centerFreq1;
+        writeData += ',' + mScanResult.channelWidth;
+        writeData += ',' + mScanResult.frequency;
+
 
         if(mScanResult.is80211mcResponder()){
             RangingRequest rangingRequest =
@@ -151,14 +177,26 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
         else{
 
-            mRangeTextView.setText("X");
+            Log.d(TAG, "TEsting string " + writeData);
 
-            mRangeSDTextView.setText("X");
+            mRangeTextView.setText(writeData);
+
+            if(scanning){
+                mRangeSDTextView.setText("scanning");
+            }
+            else{
+                mRangeSDTextView.setText("X");
+            }
+
 
             mRssiTextView.setText(mScanResult.level + "");
 
-            // FIXME: CsvManager is changed
-            // mcsvmanager.Write();
+
+            writeData += ',' + mScanResult.level;
+
+
+
+            mcsvmanager.Write();
 
         }
     }
