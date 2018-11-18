@@ -48,24 +48,41 @@
         android:text="@string/introduction_text"
         android:textAlignment="center"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/scan_wifi_button"
+        app:layout_constraintBottom_toTopOf="@+id/button_linear_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.991" />
 
-    <Button
-        android:id="@+id/scan_wifi_button"
-        android:layout_width="0dp"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/button_linear_layout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:onClick="onClickFindDistancesToAccessPoints"
-        android:text="@string/scan_wifi_button_label"
-        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"  >
+
+        <Button
+            android:id="@+id/scan_wifi_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickFindDistancesToAccessPoints"
+            android:text="@string/scan_wifi_button_label"
+            android:visibility="visible"/>
+
+        <Button
+            android:id="@+id/developer_console_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickDeveloperConsole"
+            android:text="@string/developer_console_button_label"
+            android:visibility="visible"/>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
