@@ -140,7 +140,6 @@
         app:layout_constraintTop_toBottomOf="@+id/range_sd_value" />
 
 
-
     <View
         android:id="@+id/divider2"
         android:layout_width="0dp"
@@ -153,6 +152,51 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rssi_value" />
+
+    <TextView
+        android:id="@+id/csv_file_name_label"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
+        android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
+        android:gravity="center"
+        android:text="CSV filename:"
+        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
+        app:layout_constraintTop_toTopOf="@+id/divider2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <EditText
+        android:id="@+id/csv_file_name"
+        android:layout_width="300dp"
+        android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
+        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
+        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
+        android:text="default"
+        android:ems="10"
+        android:singleLine="true"
+        android:inputType="text"
+        android:gravity="center"
+        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
+        app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="100" />
+
+    <ToggleButton
+        android:id="@+id/toggle_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
+        android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+        android:checked="false"
+        android:textOff="Press to start Scanning"
+        android:textOn="Press to stop Scanning"
+        android:onClick="onToggleClicked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
