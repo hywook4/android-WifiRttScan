@@ -15,13 +15,12 @@
  */
 package com.example.android.wifirttscan;
 
-import android.content.Context;
 import android.net.wifi.ScanResult;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import android.net.wifi.rtt.RangingRequest;
+
 import android.net.wifi.rtt.RangingResult;
 import android.net.wifi.rtt.RangingResultCallback;
 import android.net.wifi.rtt.WifiRttManager;
@@ -33,9 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.app.Application;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +53,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     private static ScanResultClickListener sScanResultClickListener;
 
     private List<ScanResult> mWifiAccessPointsWithRtt;
-    private SparseBooleanArray mAPSelecteedArray;
+    private SparseBooleanArray mAPSelectedArray;
 
     private WifiRttManager mWifiRttManager;
     private RttRangingResultCallback mRttRangingResultCallback;
@@ -65,10 +64,22 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     public Application mApplication;
     public int num;
 
+    public List<ScanResult> returnSelectedAPInfo() {
+        ArrayList<ScanResult> results = new ArrayList<>();
+        for(int i = 0; i < mWifiAccessPointsWithRtt.size(); i++) {
+            if (!mAPSelectedArray.get(i, false)) {
+                continue;
+            } else {
+                results.add(mWifiAccessPointsWithRtt.get(i));
+            }
+        }
+        return results;
+    }
+
 
     public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener, Application app) {
         mWifiAccessPointsWithRtt = list;
-        mAPSelecteedArray = new SparseBooleanArray();
+        mAPSelectedArray = new SparseBooleanArray(mWifiAccessPointsWithRtt.size());
         sScanResultClickListener = scanResultClickListener;
         mApplication = app;
     }
@@ -101,19 +112,18 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             //mRttRangingResultCallback = new RttRangingResultCallback();
 
             Log.d(TAG, "after wifirttmanager");
-
         }
 
         @Override
         public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
             if (view.getId() == R.id.ap_checkbox) {
-                if(!mAPSelecteedArray.get(adapterPosition, false)) {
+                if(!mAPSelectedArray.get(adapterPosition, false)) {
                     apSelected.setChecked(true);
-                    mAPSelecteedArray.put(adapterPosition, true);
+                    mAPSelectedArray.put(adapterPosition, true);
                 } else {
                     apSelected.setChecked(false);
-                    mAPSelecteedArray.put(adapterPosition, false);
+                    mAPSelectedArray.put(adapterPosition, false);
                 }
             } else {
                 sScanResultClickListener.onScanResultItemClick(getItem(adapterPosition));
@@ -121,7 +131,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         }
 
         public void bind(int position) {
-            if(!mAPSelecteedArray.get(position, false)) {
+            if(!mAPSelectedArray.get(position, false)) {
                 apSelected.setChecked(false);
             } else {
                 apSelected.setChecked(true);
@@ -137,6 +147,8 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         if ((list != null) && (list.size() > 0)) {
             mWifiAccessPointsWithRtt.addAll(list);
         }
+
+        mAPSelectedArray = new SparseBooleanArray(mWifiAccessPointsWithRtt.size());
 
         notifyDataSetChanged();
     }

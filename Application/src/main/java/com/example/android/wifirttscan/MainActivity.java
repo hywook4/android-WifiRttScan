@@ -150,6 +150,13 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         }
     }
 
+    public void onClickRangeSelectedAP(View view) {
+        Log.d(TAG, "onClickRangeSelectedAP");
+
+        List<ScanResult> selectedAP = mAdapter.returnSelectedAPInfo();
+        // TODO: Here's the code should be implemented
+    }
+
     public void onClickDeveloperConsole(View view) {
         Log.d(TAG, "onClickDeveloperConsole");
 
