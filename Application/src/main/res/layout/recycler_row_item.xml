@@ -24,6 +24,12 @@
     android:orientation="horizontal"
     android:clickable="true">
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:id="@+id/ap_checkbox"/>
+
     <TextView
         android:layout_width="0dp"
         android:layout_height="match_parent"

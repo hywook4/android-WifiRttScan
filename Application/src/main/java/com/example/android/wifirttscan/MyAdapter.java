@@ -27,9 +27,11 @@ import android.net.wifi.rtt.RangingResultCallback;
 import android.net.wifi.rtt.WifiRttManager;
 
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Application;
@@ -52,6 +54,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     private static ScanResultClickListener sScanResultClickListener;
 
     private List<ScanResult> mWifiAccessPointsWithRtt;
+    private SparseBooleanArray mAPSelecteedArray;
 
     private WifiRttManager mWifiRttManager;
     private RttRangingResultCallback mRttRangingResultCallback;
@@ -65,6 +68,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener, Application app) {
         mWifiAccessPointsWithRtt = list;
+        mAPSelecteedArray = new SparseBooleanArray();
         sScanResultClickListener = scanResultClickListener;
         mApplication = app;
     }
@@ -80,6 +84,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         public TextView mSsidTextView;
         public TextView rssiTextView;
         public TextView rttTextView;
+        public CheckBox apSelected;
 
 
         public ViewHolderItem(View view) {
@@ -89,6 +94,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             mSsidTextView = view.findViewById(R.id.ssid_text_view);
             rssiTextView = view.findViewById(R.id.rssi_text_view);
             rttTextView = view.findViewById(R.id.rtt_text_view);
+            apSelected = view.findViewById(R.id.ap_checkbox);
 
             Log.d(TAG, "before wifirttmanager");
             //mWifiRttManager = (WifiRttManager) view.getContext().getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
@@ -100,7 +106,26 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            sScanResultClickListener.onScanResultItemClick(getItem(getAdapterPosition()));
+            int adapterPosition = getAdapterPosition();
+            if (view.getId() == R.id.ap_checkbox) {
+                if(!mAPSelecteedArray.get(adapterPosition, false)) {
+                    apSelected.setChecked(true);
+                    mAPSelecteedArray.put(adapterPosition, true);
+                } else {
+                    apSelected.setChecked(false);
+                    mAPSelecteedArray.put(adapterPosition, false);
+                }
+            } else {
+                sScanResultClickListener.onScanResultItemClick(getItem(adapterPosition));
+            }
+        }
+
+        public void bind(int position) {
+            if(!mAPSelecteedArray.get(position, false)) {
+                apSelected.setChecked(false);
+            } else {
+                apSelected.setChecked(true);
+            }
         }
     }
 
@@ -152,6 +177,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             ScanResult currentScanResult = getItem(position);
 
             viewHolderItem.mSsidTextView.setText(currentScanResult.SSID);
+            viewHolderItem.bind(position);
 
             if(currentScanResult.is80211mcResponder()){
 
