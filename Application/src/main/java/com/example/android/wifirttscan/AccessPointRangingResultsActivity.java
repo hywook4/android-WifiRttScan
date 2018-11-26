@@ -19,6 +19,7 @@ import android.Manifest.permission;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.net.wifi.ScanResult;
 import android.net.wifi.rtt.RangingRequest;
 import android.net.wifi.rtt.RangingResult;
@@ -64,8 +65,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private TextView mRssiTextView;
 
     private TextView mCsvFileName;
+    private TextView mScanDelay;
 
-    private ToggleButton scanToggle;
     private Boolean scanning;
 
     private String startData;
@@ -78,9 +79,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private ScanResult mScanResult;
     private String mMAC;
 
-    private int number=0;
-
-    private int mMillisecondsDelayBeforeNewRangingRequest = 3000;
+    private int number = 0;
+    private int mMillisecondDelay = 3000;
 
     // Max sample size to calculate average for
     // 1. Distance to device (getDistanceMm) over time
@@ -89,6 +89,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     // so the average in (1) is the average of these averages.
     private int mSampleSize;
 
+    private Calendar currentTime;
 
     private WifiRttManager mWifiRttManager;
     private RttRangingResultCallback mRttRangingResultCallback;
@@ -112,8 +113,10 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mRangeSDTextView = findViewById(R.id.range_sd_value);
         mRssiTextView = findViewById(R.id.rssi_value);
 
-        scanToggle = findViewById(R.id.toggle_button);
+        mScanDelay = findViewById(R.id.scan_delay);
         mCsvFileName = findViewById(R.id.csv_file_name);
+
+        //mScanDelay.setText(mMillisecondDelay + "");
 
         // Retrieve ScanResult from Intent.
         Intent intent = getIntent();
@@ -144,6 +147,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
     public void onToggleClicked(View view){
         String fileName = mCsvFileName.getText().toString() + ".csv";
+        mMillisecondDelay = Integer.parseInt(mScanDelay.getText().toString());
+
         mCsvManager = new CsvManager(fileName);
         if(((ToggleButton)view).isChecked()){
             scanning = true;
@@ -164,7 +169,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                             startRangingRequest();
                     }
                 },
-                1000);
+                mMillisecondDelay);
     }
 
     private void startRangingRequest() {
@@ -184,6 +189,10 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         //clear previous write data
         writeData = startData;
 
+        date = new Date(Calendar.getInstance().getTimeInMillis());
+        timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+
         //if AP supports 80211mc
         if(mScanResult.is80211mcResponder()){
             RangingRequest rangingRequest =
@@ -200,6 +209,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
             writeData += ',' + String.valueOf(number);
             writeData += ',' + "X";
             writeData += ',' + String.valueOf(mScanResult.level);
+            writeData += ',' + timeStamp.format(date);
 
             number++;
 
@@ -223,7 +233,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                                 startRangingRequest();
                         }
                     },
-                    1000);
+                    mMillisecondDelay);
         }
 
         @Override
@@ -258,8 +268,6 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                     writeData += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
                     writeData += ',' + String.valueOf(rangingResult.getRssi());
 
-                    date = new Date(rangingResult.getRangingTimestampMillis());
-                    timeStamp = new SimpleDateFormat("dd/MM/yy");
                     writeData += ',' + timeStamp.format(date);
 
                     writeData += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
