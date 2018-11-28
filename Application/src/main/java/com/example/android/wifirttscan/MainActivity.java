@@ -24,9 +24,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.net.wifi.rtt.RangingRequest;
+import android.net.wifi.rtt.RangingResult;
+import android.net.wifi.rtt.RangingResultCallback;
+import android.net.wifi.rtt.WifiRttManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -34,14 +38,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.LayoutManager;
+
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 
 import com.example.android.wifirttscan.MyAdapter.ScanResultClickListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,7 +76,32 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     private MyAdapter mAdapter;
 
+    //variables for RTT range requesting and data writing
 
+    ScanResult mScanResult;
+    List<ScanResult> mcScanResults;
+
+    private TextView mCsvFileName;
+    private TextView mScanDelay;
+
+    private Boolean scanning = false;
+
+    private String startData;
+    private String writeData;
+
+    private Date date;
+    private SimpleDateFormat timeStamp;
+    private int mMillisecondDelay = 1000;
+
+
+    final Handler mRangeRequestDelayHandler = new Handler();
+    final Handler mRequestDelayer = new Handler();
+
+    private WifiRttManager mWifiRttManager;
+    private RttRangingResultCallback mRttRangingResultCallback;
+
+    private CsvManager mCsvManager;
+    private int number = 0;
 
 
     @Override
@@ -78,6 +112,9 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
         mOutputTextView = findViewById(R.id.access_point_summary_text_view);
         mRecyclerView = findViewById(R.id.recycler_view);
+
+        mScanDelay = findViewById(R.id.scan_delay);
+        mCsvFileName = findViewById(R.id.csv_file_name);
 
         // Improve performance if you know that changes in content do not change the layout size
         // of the RecyclerView
@@ -95,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiScanReceiver = new WifiScanReceiver();
+
+        mWifiRttManager = (WifiRttManager) getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
+
+        mRttRangingResultCallback = new RttRangingResultCallback();
 
     }
 
@@ -153,9 +194,156 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     public void onClickRangeSelectedAP(View view) {
         Log.d(TAG, "onClickRangeSelectedAP");
 
-        List<ScanResult> selectedAP = mAdapter.returnSelectedAPInfo();
-        // TODO: Here's the code should be implemented
+
+        if(((ToggleButton)view).isChecked()){
+            scanning = true;
+
+            mcScanResults = mAdapter.returnSelectedAPInfo();
+
+            Log.d(TAG, mcScanResults.size() +" : this is size of list");
+
+            String fileName = mCsvFileName.getText().toString() + ".csv";
+            mMillisecondDelay = Integer.parseInt(mScanDelay.getText().toString());
+            mCsvManager = new CsvManager(fileName);
+            number = 0;
+
+            startRangingRequest();
+        }
+        else{
+            scanning = false;
+        }
+        return;
     }
+
+
+    private void delayRequest(){
+        mRequestDelayer.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if(scanning)
+                            startRangingRequest();
+                    }
+                },
+                mMillisecondDelay);
+    }
+
+    private void startRangingRequest() {
+        // Permission for fine location should already be granted via MainActivity (you can't get
+        // to this class unless you already have permission. If they get to this class, then disable
+        // fine location permission, we kick them back to main activity.
+        Log.d(TAG, "Enter startRangingRequest");
+        if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            finish();
+        }
+
+        if(ActivityCompat.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            finish();
+        }
+
+        for(int i = 0 ; i < mcScanResults.size() ; i++){
+            mScanResult = mcScanResults.get(i);
+
+            startData = mScanResult.SSID;
+            startData += ',' + mScanResult.BSSID;
+            startData += ',' + String.valueOf(mScanResult.centerFreq0);
+            startData += ',' + String.valueOf(mScanResult.centerFreq1);
+            startData += ',' + String.valueOf(mScanResult.channelWidth);
+            startData += ',' + String.valueOf(mScanResult.frequency);
+
+            //clear previous write data
+            writeData = startData;
+
+            date = new Date(Calendar.getInstance().getTimeInMillis());
+            timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+
+            //if AP supports 80211mc
+            if(mScanResult.is80211mcResponder()){
+                RangingRequest rangingRequest =
+                        new RangingRequest.Builder().addAccessPoint(mScanResult).build();
+
+                mWifiRttManager.startRanging(
+                        rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+            }
+
+            else{
+
+                writeData += ',' + String.valueOf(number);
+                writeData += ',' + String.valueOf(mScanResult.level);
+                writeData += ',' + timeStamp.format(date);
+
+                number++;
+
+                mCsvManager.Write(writeData);
+            }
+
+        }
+
+        if(scanning)
+            delayRequest();
+    }
+
+    // Class that handles callbacks for all RangingRequests and issues new RangingRequests.
+    private class RttRangingResultCallback extends RangingResultCallback {
+
+        private void queueNextRangingRequest() {
+            mRangeRequestDelayHandler.postDelayed(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            startRangingRequest();
+                        }
+                    },
+                    mMillisecondDelay);
+        }
+
+        @Override
+        public void onRangingFailure(int code) {
+            Log.d(TAG, "onRangingFailure() code: " + code);
+            queueNextRangingRequest();
+        }
+
+        @Override
+        public void onRangingResults(@NonNull List<RangingResult> list) {
+            Log.d(TAG, "onRangingResults(): " + list);
+
+            // Because we are only requesting RangingResult for one access point (not multiple
+            // access points), this will only ever be one. (Use loops when requesting RangingResults
+            // for multiple access points.)
+            if (list.size() == 1) {
+
+                RangingResult rangingResult = list.get(0);
+
+                if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
+
+                    writeData += ',' + String.valueOf(rangingResult.getStatus());
+                    writeData += ',' + String.valueOf(rangingResult.getDistanceMm());
+                    writeData += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
+                    writeData += ',' + String.valueOf(rangingResult.getRssi());
+
+                    writeData += ',' + timeStamp.format(date);
+
+                    writeData += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
+                    writeData += ',' + String.valueOf(rangingResult.getNumSuccessfulMeasurements());
+
+                    mCsvManager.Write(writeData);
+
+                } else if (rangingResult.getStatus()
+                        == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
+                    Log.d(TAG, "RangingResult failed (AP doesn't support IEEE80211 MC.");
+
+                } else {
+                    Log.d(TAG, "RangingResult failed.");
+                }
+
+            }
+        }
+    }
+
+
+
 
     public void onClickDeveloperConsole(View view) {
         Log.d(TAG, "onClickDeveloperConsole");
@@ -163,11 +351,6 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         Intent intent = new Intent(this, DeveloperActivity.class);
         startActivity(intent);
     }
-
-
-
-
-
 
     private class WifiScanReceiver extends BroadcastReceiver {
 

@@ -80,7 +80,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private String mMAC;
 
     private int number = 0;
-    private int mMillisecondDelay = 3000;
+    private int mMillisecondDelay = 1000;
 
     // Max sample size to calculate average for
     // 1. Distance to device (getDistanceMm) over time

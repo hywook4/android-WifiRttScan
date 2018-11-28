@@ -36,13 +36,11 @@ import android.app.Application;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Displays the ssid and bssid from a list of {@link ScanResult}s including a header at the top of
  * the {@link RecyclerView} to label the data.
  */
 public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
-
 
     private static final String TAG = "MyAdapter";
     private static final int HEADER_POSITION = 0;
@@ -209,14 +207,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
                 viewHolderItem.rttTextView.setText("X");
             }
 
-
-
         } else {
             throw new RuntimeException(viewHolder + " isn't a valid view holder.");
         }
-
-
-
 
     }
 
