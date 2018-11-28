@@ -198,6 +198,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
                 viewHolderItem.rttTextView.setText("O");
                 viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
+                viewHolderItem.apSelected.setVisibility(View.VISIBLE);
                 //RangingRequest rangingRequest = new RangingRequest.Builder().addAccessPoint(currentScanResult).build();
 
                 //mWifiRttManager.startRanging(rangingRequest, mApplication.getMainExecutor(), mRttRangingResultCallback);
@@ -210,6 +211,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
                 mRssi = currentScanResult.level;
                 viewHolderItem.rssiTextView.setText(mRssi + "");
                 viewHolderItem.rttTextView.setText("X");
+                viewHolderItem.apSelected.setVisibility(View.INVISIBLE);
             }
 
         } else {
