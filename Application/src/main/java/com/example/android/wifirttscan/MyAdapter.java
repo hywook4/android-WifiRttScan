@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.app.Application;
 
@@ -65,7 +66,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     public List<ScanResult> returnSelectedAPInfo() {
         ArrayList<ScanResult> results = new ArrayList<>();
         for(int i = 0; i < mWifiAccessPointsWithRtt.size(); i++) {
-            if (!mAPSelectedArray.get(i, false)) {
+            if (!mAPSelectedArray.get(i + 1, false)) {
                 continue;
             } else {
                 results.add(mWifiAccessPointsWithRtt.get(i));
@@ -104,6 +105,21 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             rssiTextView = view.findViewById(R.id.rssi_text_view);
             rttTextView = view.findViewById(R.id.rtt_text_view);
             apSelected = view.findViewById(R.id.ap_checkbox);
+            apSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+            {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+                {
+                    int adapterPosition = getAdapterPosition();
+                    if(!mAPSelectedArray.get(adapterPosition, false)) {
+                        apSelected.setChecked(true);
+                        mAPSelectedArray.put(adapterPosition, true);
+                    } else {
+                        apSelected.setChecked(false);
+                        mAPSelectedArray.put(adapterPosition, false);
+                    }
+                }
+            });
 
             Log.d(TAG, "before wifirttmanager");
             //mWifiRttManager = (WifiRttManager) view.getContext().getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
@@ -114,18 +130,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            int adapterPosition = getAdapterPosition();
-            if (view.getId() == R.id.ap_checkbox) {
-                if(!mAPSelectedArray.get(adapterPosition, false)) {
-                    apSelected.setChecked(true);
-                    mAPSelectedArray.put(adapterPosition, true);
-                } else {
-                    apSelected.setChecked(false);
-                    mAPSelectedArray.put(adapterPosition, false);
-                }
-            } else {
-                sScanResultClickListener.onScanResultItemClick(getItem(adapterPosition));
-            }
+            sScanResultClickListener.onScanResultItemClick(getItem(getAdapterPosition()));
         }
 
         public void bind(int position) {
