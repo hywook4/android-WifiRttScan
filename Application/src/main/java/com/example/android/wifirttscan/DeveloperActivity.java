@@ -15,7 +15,7 @@ import android.widget.Switch;
 public class DeveloperActivity extends AppCompatActivity {
     private static final String TAG = "DeveloperActivity";
 
-    public static boolean configOnlyMCCheckbox;
+    public static boolean configOnlyMCCheckbox = true;
 
     private CsvManager mCsvManager;
 
@@ -36,12 +36,14 @@ public class DeveloperActivity extends AppCompatActivity {
 
         onlyMCCheckboxSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("[DEBUG]", "isCHecked: " + isChecked);
                 configOnlyMCCheckbox = isChecked;
+                Log.d("[DEBUG]", "configOnlyMCCheckbox: " + configOnlyMCCheckbox);
             }
         });
 
         mCsvManager = new CsvManager("test.csv");
-        configOnlyMCCheckbox = onlyMCCheckboxSwitch.isChecked();
+        onlyMCCheckboxSwitch.setChecked(configOnlyMCCheckbox);
     }
 
     @Override
