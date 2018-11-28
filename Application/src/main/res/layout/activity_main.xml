@@ -55,17 +55,77 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.991" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/button_linear_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"  >
+
+        <TextView
+            android:id="@+id/scan_delay_label"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+            android:layout_marginTop="8dp"
+            android:gravity="start"
+            android:text="Scan Delay (ms): "
+            android:textAlignment="textStart"
+            android:textSize="15sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/scan_delay"
+            android:layout_width="@dimen/activity_access_point_ranging_request_edit_view_width"
+            android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
+            android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
+            android:layout_marginTop="0dp"
+            android:ems="10"
+            android:singleLine="true"
+            android:inputType="number"
+            android:textAlignment="textEnd"
+            android:text="1000"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="100"/>
+
+        <TextView
+            android:id="@+id/csv_file_name_label"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
+            android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+            android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
+            android:gravity="center"
+            android:text="CSV filename:"
+            android:textSize="15sp"
+            app:layout_constraintTop_toBottomOf="@+id/scan_delay_label"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <EditText
+            android:id="@+id/csv_file_name"
+            android:layout_width="250dp"
+            android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
+            android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
+            android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
+            android:text="default"
+            android:ems="10"
+            android:singleLine="true"
+            android:inputType="text"
+            android:gravity="center"
+            android:textSize="15sp"
+            app:layout_constraintTop_toBottomOf="@+id/scan_delay_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="100" />
+
+
 
         <Button
             android:id="@+id/scan_wifi_button"
@@ -73,7 +133,9 @@
             android:layout_height="wrap_content"
             android:onClick="onClickFindDistancesToAccessPoints"
             android:text="@string/scan_wifi_button_label"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <Button
             android:id="@+id/range_selected_ap"
@@ -81,16 +143,21 @@
             android:layout_height="wrap_content"
             android:onClick="onClickRangeSelectedAP"
             android:text="@string/range_selected_ap_button_label"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
+            app:layout_constraintEnd_toEndOf = "parent"/>
+        <!--
+                <Button
+                    android:id="@+id/developer_console_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onClickDeveloperConsole"
+                    android:text="@string/developer_console_button_label"
+                    android:visibility="visible"
+                    app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
+                    app:layout_constraintEnd_toEndOf="parent" />
+                    !-->
 
-        <Button
-            android:id="@+id/developer_console_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClickDeveloperConsole"
-            android:text="@string/developer_console_button_label"
-            android:visibility="visible"/>
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

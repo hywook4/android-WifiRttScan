@@ -23,7 +23,7 @@
     <string name="recycler_row_header_label_bssid">BSSID</string>
     <string name="retrieving_access_points">Retrieving Access Points&#8230;</string>
     <string name="scan_wifi_button_label">Scan WiFi</string>
-    <string name="range_selected_ap_button_label">Range selected</string>
+    <string name="range_selected_ap_button_label">SCAN APs</string>
     <string name="developer_console_button_label">Open Console</string>
     <string name="introduction_text">Click the button below to scan access points.</string>
 

@@ -195,17 +195,13 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
                 viewHolderItem.rttTextView.setText("O");
                 viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
-
-
                 //RangingRequest rangingRequest = new RangingRequest.Builder().addAccessPoint(currentScanResult).build();
 
                 //mWifiRttManager.startRanging(rangingRequest, mApplication.getMainExecutor(), mRttRangingResultCallback);
 
                 //viewHolderItem.rttTextView.setText(mRtt + "");
                 //viewHolderItem.rssiTextView.setText(mRssi + "");
-
             }
-
 
             else{
                 mRssi = currentScanResult.level;

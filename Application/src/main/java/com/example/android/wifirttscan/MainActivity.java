@@ -164,6 +164,11 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         startActivity(intent);
     }
 
+
+
+
+
+
     private class WifiScanReceiver extends BroadcastReceiver {
 
         private List<ScanResult> find80211mcSupportedAccessPoints(
