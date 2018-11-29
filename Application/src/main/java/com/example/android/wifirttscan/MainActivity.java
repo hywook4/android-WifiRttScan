@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     private RttRangingResultCallback mRttRangingResultCallback;
 
     private CsvManager mCsvManager;
+    private CsvManager debugWriter = new CsvManager("debug.csv");
     private int number = 0;
 
 
@@ -200,7 +201,9 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
             mcScanResults = mAdapter.returnSelectedAPInfo();
 
-            Log.d(TAG, mcScanResults.size() +" : this is size of list");
+            Log.d(TAG, mcScanResults.size() + " : this is size of list");
+            debugWriter.Write("Size of the List : " + mcScanResults.size());
+
 
             String fileName = mCsvFileName.getText().toString() + ".csv";
             mMillisecondDelay = Integer.parseInt(mScanDelay.getText().toString());
@@ -302,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         @Override
         public void onRangingFailure(int code) {
             Log.d(TAG, "onRangingFailure() code: " + code);
-            queueNextRangingRequest();
+            //queueNextRangingRequest();
         }
 
         @Override
