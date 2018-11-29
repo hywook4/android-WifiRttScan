@@ -202,6 +202,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
                 viewHolderItem.rttTextView.setText("O");
                 viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
+                if (DeveloperActivity.configOnlyMCCheckbox) {
+                    viewHolderItem.apSelected.setVisibility(View.VISIBLE);
+                }
                 //RangingRequest rangingRequest = new RangingRequest.Builder().addAccessPoint(currentScanResult).build();
 
                 //mWifiRttManager.startRanging(rangingRequest, mApplication.getMainExecutor(), mRttRangingResultCallback);
