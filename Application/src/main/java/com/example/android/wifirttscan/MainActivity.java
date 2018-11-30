@@ -50,6 +50,7 @@ import com.example.android.wifirttscan.MyAdapter.ScanResultClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -185,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     }
 
     public void onClickFindDistancesToAccessPoints(View view) {
+        buffer.clear();
         if (mLocationPermissionApproved && mExternalStoragePermissionApproved && mInternalStoragePermissionApproved) {
             logToUi(getString(R.string.retrieving_access_points));
             mWifiManager.startScan();
@@ -260,7 +262,10 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             writeData += ',' + String.valueOf(mScanResult.frequency);
 
             //Add to buffer as a BSSID
-            buffer.put(mScanResult.BSSID, writeData);
+            List<String> byteOfAddress = Arrays.asList(mScanResult.BSSID.split(":"));
+            String key = String.join(":", byteOfAddress.subList(0, 3));
+            buffer.put(key, writeData);
+            debugWriter.Write(key + "(" + mScanResult.BSSID + "): " + writeData);
 
             date = new Date(Calendar.getInstance().getTimeInMillis());
             timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -326,19 +331,19 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
                     debugWriter.Write("rangingResult.getMacAddress().toOuiString(): " + rangingResult.getMacAddress().toOuiString());
                     String data = buffer.get(rangingResult.getMacAddress().toOuiString());
+                    if(data != null) {
+                        data += ',' + String.valueOf(rangingResult.getStatus());
+                        data += ',' + String.valueOf(rangingResult.getDistanceMm());
+                        data += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
+                        data += ',' + String.valueOf(rangingResult.getRssi());
 
-                    data += ',' + String.valueOf(rangingResult.getStatus());
-                    data += ',' + String.valueOf(rangingResult.getDistanceMm());
-                    data += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
-                    data += ',' + String.valueOf(rangingResult.getRssi());
+                        data += ',' + timeStamp.format(date);
 
-                    data += ',' + timeStamp.format(date);
+                        data += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
+                        data += ',' + String.valueOf(rangingResult.getNumSuccessfulMeasurements());
 
-                    data += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
-                    data += ',' + String.valueOf(rangingResult.getNumSuccessfulMeasurements());
-
-                    mCsvManager.Write(data);
-
+                        mCsvManager.Write(data);
+                    }
                 } else if (rangingResult.getStatus()
                         == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
                     Log.d(TAG, "RangingResult failed (AP doesn't support IEEE80211 MC.");
