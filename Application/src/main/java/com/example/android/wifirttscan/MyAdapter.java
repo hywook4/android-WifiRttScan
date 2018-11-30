@@ -194,7 +194,6 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             viewHolderItem.mSsidTextView.setText(currentScanResult.SSID);
             viewHolderItem.bind(position);
 
-            Log.d("[DEBUG]", "DeveloperActivity.configOnlyMCCheckbox: " + DeveloperActivity.configOnlyMCCheckbox);
             if (!DeveloperActivity.configOnlyMCCheckbox) {
                 viewHolderItem.apSelected.setVisibility(View.VISIBLE);
             }

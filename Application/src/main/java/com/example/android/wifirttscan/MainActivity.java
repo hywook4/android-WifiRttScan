@@ -51,7 +51,9 @@ import com.example.android.wifirttscan.MyAdapter.ScanResultClickListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Displays list of Access Points enabled with WifiRTT (to check distance). Requests location
@@ -86,8 +88,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     private Boolean scanning = false;
 
-    private String startData;
     private String writeData;
+    private Map<String, String> buffer;
 
     private Date date;
     private SimpleDateFormat timeStamp;
@@ -138,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
         mRttRangingResultCallback = new RttRangingResultCallback();
 
+        Map<String, String> mBuffer;
+        buffer = new HashMap<>();
     }
 
     @Override
@@ -248,15 +252,15 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         for(int i = 0 ; i < mcScanResults.size() ; i++){
             mScanResult = mcScanResults.get(i);
 
-            startData = mScanResult.SSID;
-            startData += ',' + mScanResult.BSSID;
-            startData += ',' + String.valueOf(mScanResult.centerFreq0);
-            startData += ',' + String.valueOf(mScanResult.centerFreq1);
-            startData += ',' + String.valueOf(mScanResult.channelWidth);
-            startData += ',' + String.valueOf(mScanResult.frequency);
+            writeData = mScanResult.SSID;
+            writeData += ',' + mScanResult.BSSID;
+            writeData += ',' + String.valueOf(mScanResult.centerFreq0);
+            writeData += ',' + String.valueOf(mScanResult.centerFreq1);
+            writeData += ',' + String.valueOf(mScanResult.channelWidth);
+            writeData += ',' + String.valueOf(mScanResult.frequency);
 
-            //clear previous write data
-            writeData = startData;
+            //Add to buffer as a BSSID
+            buffer.put(mScanResult.BSSID, writeData);
 
             date = new Date(Calendar.getInstance().getTimeInMillis());
             timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -320,18 +324,20 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 RangingResult rangingResult = list.get(0);
 
                 if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
+                    debugWriter.Write("rangingResult.getMacAddress().toOuiString(): " + rangingResult.getMacAddress().toOuiString());
+                    String data = buffer.get(rangingResult.getMacAddress().toOuiString());
 
-                    writeData += ',' + String.valueOf(rangingResult.getStatus());
-                    writeData += ',' + String.valueOf(rangingResult.getDistanceMm());
-                    writeData += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
-                    writeData += ',' + String.valueOf(rangingResult.getRssi());
+                    data += ',' + String.valueOf(rangingResult.getStatus());
+                    data += ',' + String.valueOf(rangingResult.getDistanceMm());
+                    data += ',' + String.valueOf(rangingResult.getDistanceStdDevMm());
+                    data += ',' + String.valueOf(rangingResult.getRssi());
 
-                    writeData += ',' + timeStamp.format(date);
+                    data += ',' + timeStamp.format(date);
 
-                    writeData += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
-                    writeData += ',' + String.valueOf(rangingResult.getNumSuccessfulMeasurements());
+                    data += ',' + String.valueOf(rangingResult.getNumAttemptedMeasurements());
+                    data += ',' + String.valueOf(rangingResult.getNumSuccessfulMeasurements());
 
-                    mCsvManager.Write(writeData);
+                    mCsvManager.Write(data);
 
                 } else if (rangingResult.getStatus()
                         == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {

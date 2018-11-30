@@ -36,9 +36,7 @@ public class DeveloperActivity extends AppCompatActivity {
 
         onlyMCCheckboxSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("[DEBUG]", "isCHecked: " + isChecked);
                 configOnlyMCCheckbox = isChecked;
-                Log.d("[DEBUG]", "configOnlyMCCheckbox: " + configOnlyMCCheckbox);
             }
         });
 
