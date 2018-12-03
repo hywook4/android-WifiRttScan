@@ -27,8 +27,10 @@ import android.net.wifi.rtt.RangingResultCallback;
 import android.net.wifi.rtt.WifiRttManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -64,6 +66,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
     private TextView mCsvFileName;
     private TextView mScanDelay;
+
+    private Chronometer mTimer;
 
     private Boolean scanning;
 
@@ -113,6 +117,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
         mScanDelay = findViewById(R.id.scan_delay);
         mCsvFileName = findViewById(R.id.csv_file_name);
+        mTimer = findViewById(R.id.sub_timer);
 
         //mScanDelay.setText(mMillisecondDelay + "");
 
@@ -150,10 +155,12 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mCsvManager = new CsvManager(fileName);
         if(((ToggleButton)view).isChecked()){
             scanning = true;
+            startTimer();
             startRangingRequest();
         }
         else{
             scanning = false;
+            stopTimer();
         }
         return;
     }
@@ -285,5 +292,15 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
             if(scanning)
                 queueNextRangingRequest();
         }
+    }
+
+    public void startTimer() {
+        mTimer.setBase(SystemClock.elapsedRealtime());
+        mTimer.start();
+    }
+
+    public void stopTimer() {
+        mTimer.setBase(SystemClock.elapsedRealtime());
+        mTimer.stop();
     }
 }
