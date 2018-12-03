@@ -153,79 +153,80 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rssi_value" />
 
-    <TextView
-        android:id="@+id/scan_delay_label"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
-        android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
-        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
-        android:gravity="start"
-        android:text="Scan Delay (ms): "
-        android:textAlignment="textStart"
-        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/divider2" />
 
-    <EditText
-        android:id="@+id/scan_delay"
-        android:layout_width="@dimen/activity_access_point_ranging_request_edit_view_width"
-        android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
-        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
-        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top"
-        android:ems="10"
-        android:singleLine="true"
-        android:inputType="number"
-        android:textAlignment="textEnd"
-        android:text="1000"
-        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/divider2"
-        tools:text="100"/>
 
-    <TextView
-        android:id="@+id/csv_file_name_label"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
-        android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
-        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
-        android:gravity="center"
-        android:text="CSV filename:"
-        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
-        app:layout_constraintTop_toBottomOf="@+id/scan_delay_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <EditText
-        android:id="@+id/csv_file_name"
-        android:layout_width="300dp"
-        android:layout_height="@dimen/activity_access_point_ranging_request_edit_view_height"
-        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
-        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
-        android:text="default"
-        android:ems="10"
-        android:singleLine="true"
-        android:inputType="text"
-        android:gravity="center"
-        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
-        app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="100" />
-
-    <ToggleButton
-        android:id="@+id/toggle_button"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/control_panel_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
-        android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
-        android:checked="false"
-        android:textOff="Press to start Scanning"
-        android:textOn="Press to stop Scanning"
-        android:onClick="onToggleClicked"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/divider2">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/scan_delay_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/scan_period_label"
+                android:textAlignment="textStart"
+                android:textSize="@dimen/activity_access_point_ranging_request_item_text_size" />
+
+            <EditText
+                android:id="@+id/scan_delay"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:singleLine="true"
+                android:inputType="number"
+                android:textAlignment="textEnd"
+                android:text="@string/scan_period_default_value"
+                android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
+                tools:text="100"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/csv_file_name_label"
+                android:gravity="center"
+                android:text="@string/csv_filename_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"/>
+
+            <EditText
+                android:id="@+id/csv_file_name"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:text="@string/csv_filename_default_value"
+                android:ems="10"
+                android:singleLine="true"
+                android:inputType="text"
+                android:gravity="center"
+                android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
+                app:layout_constraintTop_toBottomOf="@+id/csv_file_name_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="100" />
+        </LinearLayout>
 
 
+        <ToggleButton
+            android:id="@+id/toggle_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
+            android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+            android:checked="false"
+            android:textOff="Press to start Scanning"
+            android:textOn="Press to stop Scanning"
+            android:onClick="onToggleClicked"/>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
