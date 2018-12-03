@@ -262,10 +262,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             writeData += ',' + String.valueOf(mScanResult.frequency);
 
             //Add to buffer as a BSSID
-            List<String> byteOfAddress = Arrays.asList(mScanResult.BSSID.split(":"));
-            String key = String.join(":", byteOfAddress.subList(0, 3));
-            buffer.put(key, writeData);
-            debugWriter.Write(key + "(" + mScanResult.BSSID + "): " + writeData);
+            buffer.put(mScanResult.BSSID, writeData);
+            debugWriter.Write(mScanResult.BSSID + ": " + writeData);
 
             date = new Date(Calendar.getInstance().getTimeInMillis());
             timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -329,8 +327,9 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 RangingResult rangingResult = list.get(0);
 
                 if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
-                    debugWriter.Write("rangingResult.getMacAddress().toOuiString(): " + rangingResult.getMacAddress().toOuiString());
-                    String data = buffer.get(rangingResult.getMacAddress().toOuiString());
+                    String key = rangingResult.getMacAddress().toString();
+                    debugWriter.Write("Integer.toHexString(rangingResult.hashCode()): " + key);
+                    String data = buffer.get(key);
                     if(data != null) {
                         data += ',' + String.valueOf(rangingResult.getStatus());
                         data += ',' + String.valueOf(rangingResult.getDistanceMm());
