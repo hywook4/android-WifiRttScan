@@ -152,6 +152,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         String fileName = mCsvFileName.getText().toString() + ".csv";
         mMillisecondDelay = Integer.parseInt(mScanDelay.getText().toString());
 
+        Log.d(TAG, "delay time : "+mMillisecondDelay);
         mCsvManager = new CsvManager(fileName);
         if(((ToggleButton)view).isChecked()){
             scanning = true;

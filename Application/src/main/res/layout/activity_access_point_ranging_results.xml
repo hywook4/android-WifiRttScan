@@ -163,7 +163,7 @@
         app:layout_constraintTop_toBottomOf="@id/divider2">
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/scan_delay_label"
@@ -176,7 +176,7 @@
 
             <EditText
                 android:id="@+id/scan_delay"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:singleLine="true"
@@ -189,7 +189,7 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/csv_file_name_label"
@@ -201,7 +201,7 @@
 
             <EditText
                 android:id="@+id/csv_file_name"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/csv_filename_default_value"
                 android:ems="10"
