@@ -22,7 +22,13 @@
     <string name="recycler_row_header_label_ssid">SSID</string>
     <string name="recycler_row_header_label_bssid">BSSID</string>
     <string name="retrieving_access_points">Retrieving Access Points&#8230;</string>
+    <string name="scan_period_label">Scan Delay (ms): </string>
+    <string name="scan_period_default_value">1000</string>
+    <string name="csv_filename_label">CSV filename: </string>
+    <string name="csv_filename_default_value">default</string>
     <string name="scan_wifi_button_label">Scan WiFi</string>
+    <string name="range_selected_ap_button_off_label">Start scanning APs</string>
+    <string name="range_selected_ap_button_on_label">Stop scanning APs</string>
     <string name="developer_console_button_label">Open Console</string>
     <string name="introduction_text">Click the button below to scan access points.</string>
 
@@ -47,5 +53,6 @@
     <!-- Strings for DeveloperActivity -->
     <string name="test_csv_placeholder">Sentence to write: </string>
     <string name="test_csv_button_label">Write</string>
+    <string name="config_only_mc_checkbox_label">Only MC selected: </string>
 
 </resources>

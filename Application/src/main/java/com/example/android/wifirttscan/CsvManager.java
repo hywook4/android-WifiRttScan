@@ -37,7 +37,7 @@ public class CsvManager {
 
     public void Write(String[] data_list) {
         try {
-            String baseDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS).getAbsolutePath();
+            String baseDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
             String filePath = baseDir + File.separator + this.fileName;
             File f = new File(filePath);
 

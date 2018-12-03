@@ -55,33 +55,102 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.991" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/button_linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"  >
+        app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/scan_wifi_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onClickFindDistancesToAccessPoints"
-            android:text="@string/scan_wifi_button_label"
-            android:visibility="visible"/>
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/developer_console_button"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/scan_delay_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/scan_period_label"
+                android:textAlignment="textStart"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/scan_delay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="center"
+                android:inputType="number"
+                android:singleLine="true"
+                android:text="@string/scan_period_default_value"
+                android:textSize="15sp"
+                tools:text="100" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onClickDeveloperConsole"
-            android:text="@string/developer_console_button_label"
-            android:visibility="visible"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/csv_file_name_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/csv_filename_label"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/csv_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="center"
+                android:inputType="text"
+                android:singleLine="true"
+                android:text="@string/csv_filename_default_value"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/scan_delay_label"
+                tools:text="100" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/scan_wifi_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClickFindDistancesToAccessPoints"
+                android:text="@string/scan_wifi_button_label"
+                android:visibility="visible" />
+
+            <ToggleButton
+                android:id="@+id/range_selected_ap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClickRangeSelectedAP"
+                android:textOff="@string/range_selected_ap_button_off_label"
+                android:textOn="@string/range_selected_ap_button_on_label"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/developer_console_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClickDeveloperConsole"
+                android:text="@string/developer_console_button_label"
+                android:visibility="visible" />
+        </LinearLayout>
 
     </LinearLayout>
 

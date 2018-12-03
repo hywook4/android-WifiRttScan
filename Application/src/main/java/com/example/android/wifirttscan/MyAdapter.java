@@ -15,33 +15,33 @@
  */
 package com.example.android.wifirttscan;
 
-import android.content.Context;
 import android.net.wifi.ScanResult;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import android.net.wifi.rtt.RangingRequest;
+
 import android.net.wifi.rtt.RangingResult;
 import android.net.wifi.rtt.RangingResultCallback;
 import android.net.wifi.rtt.WifiRttManager;
 
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.app.Application;
 
+import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Displays the ssid and bssid from a list of {@link ScanResult}s including a header at the top of
  * the {@link RecyclerView} to label the data.
  */
 public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
-
 
     private static final String TAG = "MyAdapter";
     private static final int HEADER_POSITION = 0;
@@ -52,6 +52,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     private static ScanResultClickListener sScanResultClickListener;
 
     private List<ScanResult> mWifiAccessPointsWithRtt;
+    private SparseBooleanArray mAPSelectedArray;
 
     private WifiRttManager mWifiRttManager;
     private RttRangingResultCallback mRttRangingResultCallback;
@@ -62,9 +63,22 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     public Application mApplication;
     public int num;
 
+    public List<ScanResult> returnSelectedAPInfo() {
+        ArrayList<ScanResult> results = new ArrayList<>();
+        for(int i = 0; i < mWifiAccessPointsWithRtt.size(); i++) {
+            if (!mAPSelectedArray.get(i + 1, false)) {
+                continue;
+            } else {
+                results.add(mWifiAccessPointsWithRtt.get(i));
+            }
+        }
+        return results;
+    }
+
 
     public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener, Application app) {
         mWifiAccessPointsWithRtt = list;
+        mAPSelectedArray = new SparseBooleanArray(mWifiAccessPointsWithRtt.size());
         sScanResultClickListener = scanResultClickListener;
         mApplication = app;
     }
@@ -80,6 +94,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         public TextView mSsidTextView;
         public TextView rssiTextView;
         public TextView rttTextView;
+        public CheckBox apSelected;
 
 
         public ViewHolderItem(View view) {
@@ -89,18 +104,41 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             mSsidTextView = view.findViewById(R.id.ssid_text_view);
             rssiTextView = view.findViewById(R.id.rssi_text_view);
             rttTextView = view.findViewById(R.id.rtt_text_view);
+            apSelected = view.findViewById(R.id.ap_checkbox);
+            apSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+            {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+                {
+                    int adapterPosition = getAdapterPosition();
+                    if(!mAPSelectedArray.get(adapterPosition, false)) {
+                        apSelected.setChecked(true);
+                        mAPSelectedArray.put(adapterPosition, true);
+                    } else {
+                        apSelected.setChecked(false);
+                        mAPSelectedArray.put(adapterPosition, false);
+                    }
+                }
+            });
 
             Log.d(TAG, "before wifirttmanager");
             //mWifiRttManager = (WifiRttManager) view.getContext().getSystemService(Context.WIFI_RTT_RANGING_SERVICE);
             //mRttRangingResultCallback = new RttRangingResultCallback();
 
             Log.d(TAG, "after wifirttmanager");
-
         }
 
         @Override
         public void onClick(View view) {
             sScanResultClickListener.onScanResultItemClick(getItem(getAdapterPosition()));
+        }
+
+        public void bind(int position) {
+            if(!mAPSelectedArray.get(position, false)) {
+                apSelected.setChecked(false);
+            } else {
+                apSelected.setChecked(true);
+            }
         }
     }
 
@@ -112,6 +150,8 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         if ((list != null) && (list.size() > 0)) {
             mWifiAccessPointsWithRtt.addAll(list);
         }
+
+        mAPSelectedArray = new SparseBooleanArray(mWifiAccessPointsWithRtt.size());
 
         notifyDataSetChanged();
     }
@@ -152,37 +192,38 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
             ScanResult currentScanResult = getItem(position);
 
             viewHolderItem.mSsidTextView.setText(currentScanResult.SSID);
+            viewHolderItem.bind(position);
 
+            if (!DeveloperActivity.configOnlyMCCheckbox) {
+                viewHolderItem.apSelected.setVisibility(View.VISIBLE);
+            }
             if(currentScanResult.is80211mcResponder()){
 
                 viewHolderItem.rttTextView.setText("O");
                 viewHolderItem.rssiTextView.setText(currentScanResult.level + "");
-
-
+                if (DeveloperActivity.configOnlyMCCheckbox) {
+                    viewHolderItem.apSelected.setVisibility(View.VISIBLE);
+                }
                 //RangingRequest rangingRequest = new RangingRequest.Builder().addAccessPoint(currentScanResult).build();
 
                 //mWifiRttManager.startRanging(rangingRequest, mApplication.getMainExecutor(), mRttRangingResultCallback);
 
                 //viewHolderItem.rttTextView.setText(mRtt + "");
                 //viewHolderItem.rssiTextView.setText(mRssi + "");
-
             }
-
 
             else{
                 mRssi = currentScanResult.level;
                 viewHolderItem.rssiTextView.setText(mRssi + "");
                 viewHolderItem.rttTextView.setText("X");
+                if (DeveloperActivity.configOnlyMCCheckbox) {
+                    viewHolderItem.apSelected.setVisibility(View.INVISIBLE);
+                }
             }
-
-
 
         } else {
             throw new RuntimeException(viewHolder + " isn't a valid view holder.");
         }
-
-
-
 
     }
 
