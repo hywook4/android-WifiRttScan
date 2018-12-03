@@ -15,8 +15,6 @@
  */
 package com.example.android.wifirttscan;
 
-import static com.example.android.wifirttscan.AccessPointRangingResultsActivity.SCAN_RESULT_EXTRA;
-
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -32,29 +30,32 @@ import android.net.wifi.rtt.RangingResult;
 import android.net.wifi.rtt.RangingResultCallback;
 import android.net.wifi.rtt.WifiRttManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.LayoutManager;
-
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
 
 import com.example.android.wifirttscan.MyAdapter.ScanResultClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
+
+import static com.example.android.wifirttscan.AccessPointRangingResultsActivity.SCAN_RESULT_EXTRA;
 
 /**
  * Displays list of Access Points enabled with WifiRTT (to check distance). Requests location
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     private TextView mCsvFileName;
     private TextView mScanDelay;
+    private Chronometer mTimer;
 
     private Boolean scanning = false;
 
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
         mScanDelay = findViewById(R.id.scan_delay);
         mCsvFileName = findViewById(R.id.csv_file_name);
+        mTimer = findViewById(R.id.main_timer);
 
         // Improve performance if you know that changes in content do not change the layout size
         // of the RecyclerView
@@ -203,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
 
         if(((ToggleButton)view).isChecked()){
+            startTimer();
             scanning = true;
 
             mcScanResults = mAdapter.returnSelectedAPInfo();
@@ -220,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         }
         else{
             scanning = false;
+            stopTimer();
         }
         return;
     }
@@ -411,5 +416,15 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 }
             }
         }
+    }
+
+    public void startTimer() {
+        mTimer.setBase(SystemClock.elapsedRealtime());
+        mTimer.start();
+    }
+
+    public void stopTimer() {
+        mTimer.setBase(SystemClock.elapsedRealtime());
+        mTimer.stop();
     }
 }
