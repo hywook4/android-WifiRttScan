@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     private Date date;
     private SimpleDateFormat timeStamp;
     private int mMillisecondDelay = 1000;
-
+    private long mStartScheduleTime;
 
     final Handler mRangeRequestDelayHandler = new Handler();
     final Handler mRequestDelayer = new Handler();
@@ -231,6 +231,12 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
 
     private void delayRequest(){
+        mStartScheduleTime += mMillisecondDelay;
+        int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
+        while (nextDelay == 0) {
+            mStartScheduleTime += mMillisecondDelay;
+            nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
+        }
         mRequestDelayer.postDelayed(
                 new Runnable() {
                     @Override
@@ -239,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                             startRangingRequest();
                     }
                 },
-                mMillisecondDelay);
+                nextDelay);
     }
 
     private void startRangingRequest() {
@@ -302,22 +308,9 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     // Class that handles callbacks for all RangingRequests and issues new RangingRequests.
     private class RttRangingResultCallback extends RangingResultCallback {
-
-        private void queueNextRangingRequest() {
-            mRangeRequestDelayHandler.postDelayed(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            startRangingRequest();
-                        }
-                    },
-                    mMillisecondDelay);
-        }
-
         @Override
         public void onRangingFailure(int code) {
             Log.d(TAG, "onRangingFailure() code: " + code);
-            //queueNextRangingRequest();
         }
 
         @Override
