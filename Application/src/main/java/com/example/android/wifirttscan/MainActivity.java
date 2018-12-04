@@ -262,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             finish();
         }
 
+        debugWriter.Write("startRangingRequest: " + mcScanResults.size());
         for(int i = 0 ; i < mcScanResults.size() ; i++){
             mScanResult = mcScanResults.get(i);
 
@@ -311,11 +312,13 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         @Override
         public void onRangingFailure(int code) {
             Log.d(TAG, "onRangingFailure() code: " + code);
+            debugWriter.Write("onRangingFailure() code: " + code);
         }
 
         @Override
         public void onRangingResults(@NonNull List<RangingResult> list) {
             Log.d(TAG, "onRangingResults(): " + list);
+            debugWriter.Write("onRangingResults() " + list.size());
 
             // Because we are only requesting RangingResult for one access point (not multiple
             // access points), this will only ever be one. (Use loops when requesting RangingResults
@@ -344,9 +347,10 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 } else if (rangingResult.getStatus()
                         == RangingResult.STATUS_RESPONDER_DOES_NOT_SUPPORT_IEEE80211MC) {
                     Log.d(TAG, "RangingResult failed (AP doesn't support IEEE80211 MC.");
-
+                    debugWriter.Write("RangingResult failed (AP doesn't support IEEE80211 MC.");
                 } else {
                     Log.d(TAG, "RangingResult failed.");
+                    debugWriter.Write("RangingResult failed.");
                 }
 
             }
