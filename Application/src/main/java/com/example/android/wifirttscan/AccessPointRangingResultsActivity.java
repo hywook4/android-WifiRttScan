@@ -83,6 +83,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
     private int number = 0;
     private int mMillisecondDelay = 1000;
+    private long mStartScheduleTime;
 
     // Max sample size to calculate average for
     // 1. Distance to device (getDistanceMm) over time
@@ -156,6 +157,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         mCsvManager = new CsvManager(fileName);
         if(((ToggleButton)view).isChecked()){
             scanning = true;
+            mStartScheduleTime = System.currentTimeMillis();
             startTimer();
             startRangingRequest();
         }
@@ -167,6 +169,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     }
 
     private void delayRequest(){
+        mStartScheduleTime += mMillisecondDelay;
+        int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
         mRequestDelayer.postDelayed(
                 new Runnable() {
                     @Override
@@ -175,7 +179,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                             startRangingRequest();
                     }
                 },
-                mMillisecondDelay);
+                nextDelay);
     }
 
     private void startRangingRequest() {
@@ -231,6 +235,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private class RttRangingResultCallback extends RangingResultCallback {
 
         private void queueNextRangingRequest() {
+            mStartScheduleTime += mMillisecondDelay;
+            int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
             mRangeRequestDelayHandler.postDelayed(
                     new Runnable() {
                         @Override
@@ -239,7 +245,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                                 startRangingRequest();
                         }
                     },
-                    mMillisecondDelay);
+                    nextDelay);
         }
 
         @Override
