@@ -25,6 +25,7 @@
     <string name="scan_period_label">Scan Delay (ms): </string>
     <string name="scan_period_default_value">1000</string>
     <string name="csv_filename_label">CSV filename: </string>
+    <string name="timer_label">Ranging timer: </string>
     <string name="csv_filename_default_value">default</string>
     <string name="scan_wifi_button_label">Scan WiFi</string>
     <string name="range_selected_ap_button_off_label">Start scanning APs</string>

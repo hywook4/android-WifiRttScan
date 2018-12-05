@@ -27,20 +27,20 @@ import android.net.wifi.rtt.RangingResultCallback;
 import android.net.wifi.rtt.WifiRttManager;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 
 /**
@@ -67,6 +67,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private TextView mCsvFileName;
     private TextView mScanDelay;
 
+    private Chronometer mTimer;
+
     private Boolean scanning;
 
     private String startData;
@@ -81,6 +83,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
     private int number = 0;
     private int mMillisecondDelay = 1000;
+    private long mStartScheduleTime;
 
     // Max sample size to calculate average for
     // 1. Distance to device (getDistanceMm) over time
@@ -115,6 +118,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
 
         mScanDelay = findViewById(R.id.scan_delay);
         mCsvFileName = findViewById(R.id.csv_file_name);
+        mTimer = findViewById(R.id.sub_timer);
 
         //mScanDelay.setText(mMillisecondDelay + "");
 
@@ -149,18 +153,24 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
         String fileName = mCsvFileName.getText().toString() + ".csv";
         mMillisecondDelay = Integer.parseInt(mScanDelay.getText().toString());
 
+        Log.d(TAG, "delay time : "+mMillisecondDelay);
         mCsvManager = new CsvManager(fileName);
         if(((ToggleButton)view).isChecked()){
             scanning = true;
+            mStartScheduleTime = System.currentTimeMillis();
+            startTimer();
             startRangingRequest();
         }
         else{
             scanning = false;
+            stopTimer();
         }
         return;
     }
 
     private void delayRequest(){
+        mStartScheduleTime += mMillisecondDelay;
+        int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
         mRequestDelayer.postDelayed(
                 new Runnable() {
                     @Override
@@ -169,7 +179,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                             startRangingRequest();
                     }
                 },
-                mMillisecondDelay);
+                nextDelay);
     }
 
     private void startRangingRequest() {
@@ -225,6 +235,8 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
     private class RttRangingResultCallback extends RangingResultCallback {
 
         private void queueNextRangingRequest() {
+            mStartScheduleTime += mMillisecondDelay;
+            int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
             mRangeRequestDelayHandler.postDelayed(
                     new Runnable() {
                         @Override
@@ -233,7 +245,7 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
                                 startRangingRequest();
                         }
                     },
-                    mMillisecondDelay);
+                    nextDelay);
         }
 
         @Override
@@ -287,5 +299,15 @@ public class AccessPointRangingResultsActivity extends AppCompatActivity {
             if(scanning)
                 queueNextRangingRequest();
         }
+    }
+
+    public void startTimer() {
+        mTimer.setBase(SystemClock.elapsedRealtime());
+        mTimer.start();
+    }
+
+    public void stopTimer() {
+        mTimer.setBase(SystemClock.elapsedRealtime());
+        mTimer.stop();
     }
 }
