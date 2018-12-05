@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             date = new Date(Calendar.getInstance().getTimeInMillis());
             timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-
+            /*
             //if AP supports 80211mc
             if(mScanResult.is80211mcResponder()){
                 RangingRequest rangingRequest =
@@ -288,10 +288,9 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
                 mWifiRttManager.startRanging(
                         rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
-            }
-
+            }*/
+            /*
             else{
-
                 writeData += ',' + String.valueOf(number);
                 writeData += ',' + String.valueOf(mScanResult.level);
                 writeData += ',' + timeStamp.format(date);
@@ -299,9 +298,13 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 number++;
 
                 mCsvManager.Write(writeData);
-            }
-
+            }*/
         }
+        RangingRequest rangingRequest =
+                new RangingRequest.Builder().addAccessPoints(mcScanResults).build();
+
+        mWifiRttManager.startRanging(
+                rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
 
         if(scanning)
             delayRequest();
@@ -323,9 +326,11 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             // Because we are only requesting RangingResult for one access point (not multiple
             // access points), this will only ever be one. (Use loops when requesting RangingResults
             // for multiple access points.)
-            if (list.size() == 1) {
 
-                RangingResult rangingResult = list.get(0);
+            //if (list.size() == 1) {
+            for(int i = 0; i<list.size(); i++){
+
+                RangingResult rangingResult = list.get(i);
 
                 if (rangingResult.getStatus() == RangingResult.STATUS_SUCCESS) {
                     String key = rangingResult.getMacAddress().toString();
