@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     private CsvManager mCsvManager;
     private CsvManager debugWriter = new CsvManager("debug.csv");
+    private CsvManager rttApWriter = new CsvManager("rttAPs.csv");
     private int number = 0;
 
 
@@ -229,6 +230,20 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         return;
     }
 
+    public void onClickSaveRttAps(View view) {
+        Log.d(TAG, "onClickSaveRttAps");
+
+    }
+
+    public void onClickLoadRttAps(View view) {
+        Log.d(TAG, "onClickLoadRttAps");
+
+    }
+
+    public void onClickClearRttAps(View view) {
+        Log.d(TAG, "onClickClearRttAps");
+
+    }
 
     private void delayRequest(){
         mStartScheduleTime += mMillisecondDelay;
