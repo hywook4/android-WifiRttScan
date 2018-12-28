@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
     private CsvManager mCsvManager;
     private CsvManager debugWriter = new CsvManager("debug.csv");
-    private CsvManager rttApWriter = new CsvManager("rttAPs.csv");
     private int number = 0;
 
 
@@ -430,8 +429,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                             }
                         }
                     }
+                    mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(newList);
                     mAccessPoints = newList;
-                    mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(mAccessPoints);
 
                     mAdapter.swapData(mAccessPoints);
 
