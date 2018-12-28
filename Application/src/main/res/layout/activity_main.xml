@@ -173,16 +173,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
+                android:enabled="false"
                 android:onClick="onClickSaveRttAps"
                 android:text="@string/save_rtt_aps_button_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <Button
+                android:enabled="false"
                 android:onClick="onClickLoadRttAps"
                 android:text="@string/load_rtt_aps_button_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <Button
+                android:enabled="false"
                 android:onClick="onClickClearRttAps"
                 android:text="@string/clear_rtt_aps_button_label"
                 android:layout_width="wrap_content"
