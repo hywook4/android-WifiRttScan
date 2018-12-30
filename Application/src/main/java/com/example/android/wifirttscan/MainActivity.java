@@ -314,11 +314,14 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 mCsvManager.Write(writeData);
             }*/
         }
-        RangingRequest rangingRequest =
-                new RangingRequest.Builder().addAccessPoints(mcScanResults).build();
 
-        mWifiRttManager.startRanging(
-                rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+        if(mWifiRttManager != null) {
+            RangingRequest rangingRequest =
+                    new RangingRequest.Builder().addAccessPoints(mcScanResults).build();
+
+            mWifiRttManager.startRanging(
+                    rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+        }
 
         if(scanning)
             delayRequest();
