@@ -276,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             finish();
         }
 
+        boolean RttSupportedAPsExist = false;
         debugWriter.Write("startRangingRequest: " + mcScanResults.size());
         for(int i = 0 ; i < mcScanResults.size() ; i++){
             mScanResult = mcScanResults.get(i);
@@ -294,17 +295,11 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             date = new Date(Calendar.getInstance().getTimeInMillis());
             timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-            /*
             //if AP supports 80211mc
             if(mScanResult.is80211mcResponder()){
-                RangingRequest rangingRequest =
-                        new RangingRequest.Builder().addAccessPoint(mScanResult).build();
-
-                mWifiRttManager.startRanging(
-                        rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
-            }*/
-            /*
-            else{
+                RttSupportedAPsExist = true;
+            }
+            else {
                 writeData += ',' + String.valueOf(number);
                 writeData += ',' + String.valueOf(mScanResult.level);
                 writeData += ',' + timeStamp.format(date);
@@ -312,12 +307,12 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                 number++;
 
                 mCsvManager.Write(writeData);
-            }*/
+            }
         }
 
-        if(mWifiRttManager != null) {
+        if(RttSupportedAPsExist) {
             RangingRequest rangingRequest =
-                    new RangingRequest.Builder().addAccessPoints(mcScanResults).build();
+                    new RangingRequest.Builder().addAccessPoints(find80211mcSupportedAccessPoints(mcScanResults)).build();
 
             mWifiRttManager.startRanging(
                     rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
@@ -389,24 +384,24 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         startActivity(intent);
     }
 
-    private class WifiScanReceiver extends BroadcastReceiver {
+    private List<ScanResult> find80211mcSupportedAccessPoints(
+        @NonNull List<ScanResult> originalList) {
+        List<ScanResult> newList = new ArrayList<>();
 
-        private List<ScanResult> find80211mcSupportedAccessPoints(
-                @NonNull List<ScanResult> originalList) {
-            List<ScanResult> newList = new ArrayList<>();
+        for (ScanResult scanResult : originalList) {
 
-            for (ScanResult scanResult : originalList) {
-
-                if (scanResult.is80211mcResponder()) {
-                    newList.add(scanResult);
-                }
-
-                if (newList.size() >= RangingRequest.getMaxPeers()) {
-                    break;
-                }
+            if (scanResult.is80211mcResponder()) {
+                newList.add(scanResult);
             }
-            return newList;
+
+            if (newList.size() >= RangingRequest.getMaxPeers()) {
+                break;
+            }
         }
+        return newList;
+    }
+
+    private class WifiScanReceiver extends BroadcastReceiver {
 
         // This is checked via mLocationPermissionApproved boolean
         @SuppressLint("MissingPermission")
