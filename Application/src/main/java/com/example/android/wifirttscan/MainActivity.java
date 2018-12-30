@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         if(((ToggleButton)view).isChecked()){
             startTimer();
             scanning = true;
+            mStartScheduleTime = System.currentTimeMillis();
 
             mcScanResults = mAdapter.returnSelectedAPInfo();
 
@@ -245,12 +246,14 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
     }
 
     private void delayRequest(){
+        Log.d(TAG, "delayRequest");
         mStartScheduleTime += mMillisecondDelay;
         int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
         while (nextDelay == 0) {
             mStartScheduleTime += mMillisecondDelay;
             nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
         }
+        debugWriter.Write("startRangingRequest: " + nextDelay);
         mRequestDelayer.postDelayed(
                 new Runnable() {
                     @Override
@@ -318,6 +321,8 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
                     rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
         }
 
+        Log.d(TAG, "scanning at the end of startRangingRequest: " + scanning);
+        debugWriter.Write("scanning at the end of startRangingRequest: " + scanning);
         if(scanning)
             delayRequest();
     }
