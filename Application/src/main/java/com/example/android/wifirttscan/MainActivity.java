@@ -309,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
                 number++;
 
-                mCsvManager.Write(writeData);
+                debugWriter.Write(writeData);
             }
         }
 
