@@ -31,6 +31,9 @@
     <string name="range_selected_ap_button_off_label">Start scanning APs</string>
     <string name="range_selected_ap_button_on_label">Stop scanning APs</string>
     <string name="developer_console_button_label">Open Console</string>
+    <string name="save_rtt_aps_button_label">Save RTT APs</string>
+    <string name="load_rtt_aps_button_label">Load RTT APs</string>
+    <string name="clear_rtt_aps_button_label">Clear RTT APs</string>
     <string name="introduction_text">Click the button below to scan access points.</string>
 
     <!-- Strings for AccessPointRangingResultsActivity. -->

@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         if(((ToggleButton)view).isChecked()){
             startTimer();
             scanning = true;
+            mStartScheduleTime = System.currentTimeMillis();
 
             mcScanResults = mAdapter.returnSelectedAPInfo();
 
@@ -229,14 +230,30 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         return;
     }
 
+    public void onClickSaveRttAps(View view) {
+        Log.d(TAG, "onClickSaveRttAps");
+
+    }
+
+    public void onClickLoadRttAps(View view) {
+        Log.d(TAG, "onClickLoadRttAps");
+
+    }
+
+    public void onClickClearRttAps(View view) {
+        Log.d(TAG, "onClickClearRttAps");
+
+    }
 
     private void delayRequest(){
+        Log.d(TAG, "delayRequest");
         mStartScheduleTime += mMillisecondDelay;
         int nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
         while (nextDelay == 0) {
             mStartScheduleTime += mMillisecondDelay;
             nextDelay = Math.max((int)(mStartScheduleTime - System.currentTimeMillis()), 0);
         }
+        debugWriter.Write("startRangingRequest: " + nextDelay);
         mRequestDelayer.postDelayed(
                 new Runnable() {
                     @Override
@@ -262,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             finish();
         }
 
+        boolean RttSupportedAPsExist = false;
         debugWriter.Write("startRangingRequest: " + mcScanResults.size());
         for(int i = 0 ; i < mcScanResults.size() ; i++){
             mScanResult = mcScanResults.get(i);
@@ -280,32 +298,31 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             date = new Date(Calendar.getInstance().getTimeInMillis());
             timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-            /*
             //if AP supports 80211mc
             if(mScanResult.is80211mcResponder()){
-                RangingRequest rangingRequest =
-                        new RangingRequest.Builder().addAccessPoint(mScanResult).build();
-
-                mWifiRttManager.startRanging(
-                        rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
-            }*/
-            /*
-            else{
+                RttSupportedAPsExist = true;
+            }
+            else {
                 writeData += ',' + String.valueOf(number);
                 writeData += ',' + String.valueOf(mScanResult.level);
                 writeData += ',' + timeStamp.format(date);
 
                 number++;
 
-                mCsvManager.Write(writeData);
-            }*/
+                debugWriter.Write(writeData);
+            }
         }
-        RangingRequest rangingRequest =
-                new RangingRequest.Builder().addAccessPoints(mcScanResults).build();
 
-        mWifiRttManager.startRanging(
-                rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+        if(RttSupportedAPsExist) {
+            RangingRequest rangingRequest =
+                    new RangingRequest.Builder().addAccessPoints(find80211mcSupportedAccessPoints(mcScanResults)).build();
 
+            mWifiRttManager.startRanging(
+                    rangingRequest, getApplication().getMainExecutor(), mRttRangingResultCallback);
+        }
+
+        Log.d(TAG, "scanning at the end of startRangingRequest: " + scanning);
+        debugWriter.Write("scanning at the end of startRangingRequest: " + scanning);
         if(scanning)
             delayRequest();
     }
@@ -372,24 +389,24 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
         startActivity(intent);
     }
 
-    private class WifiScanReceiver extends BroadcastReceiver {
+    private List<ScanResult> find80211mcSupportedAccessPoints(
+        @NonNull List<ScanResult> originalList) {
+        List<ScanResult> newList = new ArrayList<>();
 
-        private List<ScanResult> find80211mcSupportedAccessPoints(
-                @NonNull List<ScanResult> originalList) {
-            List<ScanResult> newList = new ArrayList<>();
+        for (ScanResult scanResult : originalList) {
 
-            for (ScanResult scanResult : originalList) {
-
-                if (scanResult.is80211mcResponder()) {
-                    newList.add(scanResult);
-                }
-
-                if (newList.size() >= RangingRequest.getMaxPeers()) {
-                    break;
-                }
+            if (scanResult.is80211mcResponder()) {
+                newList.add(scanResult);
             }
-            return newList;
+
+            if (newList.size() >= RangingRequest.getMaxPeers()) {
+                break;
+            }
         }
+        return newList;
+    }
+
+    private class WifiScanReceiver extends BroadcastReceiver {
 
         // This is checked via mLocationPermissionApproved boolean
         @SuppressLint("MissingPermission")
@@ -400,9 +417,23 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
             if (scanResults != null) {
 
                 if (mLocationPermissionApproved) {
-                    //get list of 80211mc support ap data
-                    mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(scanResults);
-                    mAccessPoints = scanResults;
+                    List<ScanResult> newList = scanResults;
+                    for(ScanResult ap : mAccessPoints) {
+                        boolean flag = false;
+                        for(ScanResult sr : scanResults) {
+                            if(ap.BSSID.equals(sr.BSSID)) {
+                                flag = true;
+                            }
+                        }
+                        if(!flag) {
+                            newList.add(0, ap);
+                            if (newList.size() >= RangingRequest.getMaxPeers()) {
+                                break;
+                            }
+                        }
+                    }
+                    mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(newList);
+                    mAccessPoints = newList;
 
                     mAdapter.swapData(mAccessPoints);
 
